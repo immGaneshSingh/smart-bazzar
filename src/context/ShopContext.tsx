@@ -79,12 +79,30 @@ interface ShopContextType {
   setIsCheckoutOpen: (open: boolean) => void;
   buyNow: (product: OnlineProduct, option?: string) => void;
   showToast: (message: string) => void;
+
+  // Admin & Store Catalog Controls
+  addProduct: (product: OnlineProduct) => void;
+  deleteProduct: (productId: string) => void;
+  updateProduct: (product: OnlineProduct) => void;
+  updateProductPrice: (productId: string, newPriceOrDelta: number, isDelta?: boolean) => void;
+  updateOrderStatus: (orderId: string, status: CustomerOrder['status']) => void;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products] = useState<OnlineProduct[]>(ONLINE_PRODUCTS);
+  const [products, setProducts] = useState<OnlineProduct[]>(() => {
+    try {
+      const saved = localStorage.getItem('sb_custom_products');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return ONLINE_PRODUCTS;
+  });
 
   // App Mode: 'offline' | 'online' (default to 'offline')
   const [appMode, setAppModeState] = useState<AppMode>(() => {
@@ -343,6 +361,26 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updatedOrders = [newOrder, ...orders];
     setOrders(updatedOrders);
     clearCart();
+
+    // Asynchronously synchronize order with the Express backend
+    try {
+      fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: params.items.map(i => ({
+            productId: i.product.id,
+            name: i.product.name,
+            quantity: i.quantity,
+            selectedOption: i.selectedOption,
+          })),
+          deliveryAddress: params.deliveryAddress,
+          paymentMethod: params.paymentMethod,
+        }),
+      }).catch(err => console.warn('[Backend Sync Warning]', err));
+    } catch {
+      // ignore network errors
+    }
     
     if (user) {
       const cleanKey = (user.phone || user.id || '').replace(/\D/g, '');
@@ -522,6 +560,160 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     showToast('New delivery address saved');
   };
 
+  // Product dynamic actions for Admin & Store management
+  const addProduct = (newProd: OnlineProduct) => {
+    setProducts(prev => {
+      const updated = [newProd, ...prev];
+      try {
+        localStorage.setItem('sb_custom_products', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
+    // Synchronize to backend server
+    try {
+      fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newProd)
+      }).catch(err => console.warn('[Backend Sync Warning]', err));
+    } catch {
+      // ignore
+    }
+
+    showToast(`Added "${newProd.name}" to store catalog!`);
+  };
+
+  const deleteProduct = (productId: string) => {
+    setProducts(prev => {
+      const updated = prev.filter(p => p.id !== productId);
+      try {
+        localStorage.setItem('sb_custom_products', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
+    // Synchronize to backend server
+    try {
+      fetch(`/api/products/${productId}`, {
+        method: 'DELETE'
+      }).catch(err => console.warn('[Backend Sync Warning]', err));
+    } catch {
+      // ignore
+    }
+
+    showToast('Product removed from store catalog');
+  };
+
+  const updateProduct = (updatedProd: OnlineProduct) => {
+    setProducts(prev => {
+      const updated = prev.map(p => p.id === updatedProd.id ? updatedProd : p);
+      try {
+        localStorage.setItem('sb_custom_products', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+    showToast(`Product "${updatedProd.name}" updated`);
+  };
+
+  const updateProductPrice = (productId: string, newPriceOrDelta: number, isDelta: boolean = false) => {
+    let updatedName = '';
+    let oldP = 0;
+    let newP = 0;
+
+    setProducts(prev => {
+      const updated = prev.map(p => {
+        if (p.id === productId) {
+          updatedName = p.name;
+          oldP = p.price;
+          newP = isDelta ? Math.max(1, p.price + newPriceOrDelta) : Math.max(1, Math.round(newPriceOrDelta));
+          const discountPercent = p.originalPrice && p.originalPrice > newP 
+            ? Math.round(((p.originalPrice - newP) / p.originalPrice) * 100)
+            : 0;
+          return {
+            ...p,
+            price: newP,
+            discountPercent
+          };
+        }
+        return p;
+      });
+      try {
+        localStorage.setItem('sb_custom_products', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+
+    // Sync to backend
+    try {
+      fetch(`/api/products/${productId}/price`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(isDelta ? { delta: newPriceOrDelta } : { price: newPriceOrDelta })
+      }).catch(err => console.warn('[Backend Sync Warning]', err));
+    } catch {
+      // ignore
+    }
+
+    if (isDelta) {
+      showToast(`Price ${newPriceOrDelta > 0 ? 'increased' : 'decreased'} by ₹${Math.abs(newPriceOrDelta)}`);
+    } else {
+      showToast(`Price updated to ₹${newPriceOrDelta}`);
+    }
+  };
+
+  const updateOrderStatus = (orderId: string, status: CustomerOrder['status']) => {
+    setOrders(prev => prev.map(ord => {
+      if (ord.id === orderId) {
+        const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const stepLabels: Record<CustomerOrder['status'], string> = {
+          confirmed: 'Order Confirmed',
+          packing: 'Packing at Smart Bazzar Store Hub',
+          out_for_delivery: 'Out for Express Doorstep Delivery',
+          ready_for_pickup: 'Ready at Ground Floor Help Desk',
+          delivered: 'Delivered to Customer'
+        };
+
+        const updatedTracking = ord.trackingSteps.map(s => ({ ...s, current: false }));
+        updatedTracking.push({
+          title: stepLabels[status] || status,
+          time: timeNow,
+          completed: true,
+          current: true,
+          description: `Status updated by Store Admin to ${status.replace(/_/g, ' ').toUpperCase()}`
+        });
+
+        return {
+          ...ord,
+          status,
+          trackingSteps: updatedTracking
+        };
+      }
+      return ord;
+    }));
+
+    // Synchronize status to backend server
+    try {
+      fetch(`/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      }).catch(err => console.warn('[Backend Sync Warning]', err));
+    } catch {
+      // ignore
+    }
+
+    showToast(`Order #${orderId} status set to ${status.replace(/_/g, ' ')}`);
+  };
+
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
@@ -558,6 +750,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addDocument,
         removeDocument,
         updateDocumentStatus,
+        addProduct,
+        deleteProduct,
+        updateProduct,
+        updateProductPrice,
+        updateOrderStatus,
         setIsCartOpen,
         setIsAuthModalOpen,
         setIsCheckoutOpen,

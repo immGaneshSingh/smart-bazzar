@@ -100,34 +100,42 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200/80 transition-all">
+    <header className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md shadow-md border-b border-white/10 relative overflow-hidden transition-all text-slate-100">
       
-      {/* 1. TOP DIVISION BAR: Offline (Red) vs Online Shopping (Purple) */}
-      <div className="bg-slate-950 text-white text-xs py-2 px-3 sm:px-6 border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      {/* Subdued Watermark Typography Layer */}
+      <div className="absolute inset-0 pointer-events-none select-none opacity-[0.035] flex items-center justify-between font-black text-2xl sm:text-4xl tracking-widest text-white uppercase whitespace-nowrap z-0 overflow-hidden">
+        <span>SMART BAZZAR</span>
+        <span>LAKHISARAI</span>
+        <span>EST 2024</span>
+        <span>SMART BAZZAR</span>
+      </div>
+
+      {/* 1. TOP DIVISION BAR: Minimized Slim Height */}
+      <div className="relative z-10 bg-black/35 text-slate-200 text-[10px] py-0.5 px-3 sm:px-6 border-b border-white/5">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-1.5">
           
           {/* Left: Mode Selection Indicator & Compact Switch Button */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5">
             {appMode === 'offline' ? (
               <>
                 {/* Selected: Offline Mall (Red) */}
                 <div 
                   id="mode-indicator-offline"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-600 text-white text-xs font-black tracking-wide shadow-sm border border-red-500"
+                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-red-600 text-white font-bold tracking-wide shadow-xs border border-red-400/80 text-[10px]"
                 >
-                  <Store className="w-3.5 h-3.5" />
-                  <span>🏬 Offline Mall Visit (NH-80)</span>
+                  <Store className="w-2.5 h-2.5" />
+                  <span>Offline Mall (NH-80)</span>
                 </div>
 
-                {/* Unselected: Online Shopping shows only as a small button in top with Purple color */}
+                {/* Unselected: Online Shopping switch */}
                 <button
                   id="switch-to-online-btn"
                   onClick={() => handleSwitchToMode('online')}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer border border-purple-400/60"
+                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-purple-600/90 hover:bg-purple-500 text-white font-medium shadow-xs transition-all cursor-pointer border border-purple-400/60 text-[10px]"
                   title="Switch to Smart Bazzar Online Shopping"
                 >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>🛍️ Switch to Online Shopping</span>
+                  <ShoppingBag className="w-2.5 h-2.5" />
+                  <span>Online Store</span>
                 </button>
               </>
             ) : (
@@ -135,51 +143,66 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Selected: Online Shopping (Purple) */}
                 <div 
                   id="mode-indicator-online"
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-600 text-white text-xs font-black tracking-wide shadow-sm border border-purple-500"
+                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-purple-600 text-white font-bold tracking-wide shadow-xs border border-purple-400/80 text-[10px]"
                 >
-                  <ShoppingBag className="w-3.5 h-3.5" />
-                  <span>🛍️ Online Shopping (Doorstep Delivery)</span>
+                  <ShoppingBag className="w-2.5 h-2.5" />
+                  <span>Online Store</span>
                 </div>
 
-                {/* Unselected: Offline Mall shows only as a small button in top with Red color */}
+                {/* Unselected: Offline Mall switch */}
                 <button
                   id="switch-to-offline-btn"
                   onClick={() => handleSwitchToMode('offline')}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer border border-red-400/60"
+                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-red-600/90 hover:bg-red-500 text-white font-medium shadow-xs transition-all cursor-pointer border border-red-400/60 text-[10px]"
                   title="Switch to Offline Mall Visit"
                 >
-                  <Store className="w-3.5 h-3.5" />
-                  <span>🏬 Switch to Offline Mall</span>
+                  <Store className="w-2.5 h-2.5" />
+                  <span>Mall Visit</span>
                 </button>
               </>
             )}
           </div>
 
-          {/* Right: Specific User Login & Logout Controls */}
-          <div className="flex items-center gap-3 sm:gap-4 text-xs">
+          {/* Right: Specific User Login & Admin Portal Direct Access */}
+          <div className="flex items-center gap-1.5 text-[10px]">
+            
+            {/* Direct Admin Portal Access Button */}
+            <button
+              id="top-admin-access-btn"
+              onClick={() => handleNavClick('admin')}
+              className={`inline-flex items-center gap-1 px-2 py-0.2 rounded-full font-bold cursor-pointer transition-all border ${
+                activeTab === 'admin'
+                  ? 'bg-amber-400 text-slate-950 border-amber-300'
+                  : 'bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border-amber-500/40'
+              }`}
+              title="Restricted Admin & Owner Management Console"
+            >
+              <ShieldCheck className="w-2.5 h-2.5 text-amber-400" />
+              <span>Admin Console</span>
+            </button>
+
             {user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 {/* Logged in Customer Account Button */}
                 <button
                   onClick={() => handleNavClick('account')}
-                  className="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 font-semibold cursor-pointer text-[11px] transition-colors shadow-xs"
+                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-md bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 font-semibold cursor-pointer transition-colors shadow-xs"
                   title="My Private Account & Documents Vault"
                 >
-                  <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">
+                  <span className="w-3.5 h-3.5 rounded-full bg-amber-400 text-slate-950 font-black text-[8px] flex items-center justify-center">
                     {user.name.charAt(0)}
                   </span>
-                  <span className="font-bold text-white max-w-[120px] truncate">{user.name}</span>
-                  <span className="hidden md:inline text-amber-400 font-medium">({user.memberTier})</span>
+                  <span className="font-semibold text-white max-w-[80px] truncate">{user.name.split(' ')[0]}</span>
                 </button>
 
                 {/* Direct Logout Button */}
                 <button
                   id="top-logout-btn"
                   onClick={logout}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-[11px] font-medium text-red-400 hover:text-white hover:bg-red-900/40 transition-colors cursor-pointer border border-red-500/30"
+                  className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-md font-medium text-red-300 hover:text-white hover:bg-red-900/40 transition-colors cursor-pointer border border-red-500/30"
                   title="Logout of your account"
                 >
-                  <LogOut className="w-3 h-3" />
+                  <LogOut className="w-2.5 h-2.5" />
                   <span className="hidden sm:inline">Logout</span>
                 </button>
               </div>
@@ -187,10 +210,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="top-login-btn"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-extrabold shadow-xs transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 font-medium border border-white/15 transition-colors cursor-pointer"
               >
-                <User className="w-3 h-3" />
-                <span>Sign In / Login</span>
+                <User className="w-2.5 h-2.5 text-amber-400" />
+                <span>Sign In</span>
               </button>
             )}
           </div>
@@ -198,39 +221,36 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* 2. Main Navigation Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+      {/* 2. Main Navigation Bar: Minimized Sleek Height */}
+      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-5 lg:px-6">
+        <div className="flex items-center justify-between h-10 sm:h-11">
           
-          {/* Brand Logo with Mode Subtitle (Owner section removed as requested) */}
+          {/* Brand Logo with Mode Subtitle */}
           <div 
             id="brand-logo-btn"
             onClick={() => handleNavClick(appMode === 'offline' ? 'home' : 'shop')}
-            className="flex items-center gap-3 cursor-pointer group select-none"
+            className="flex items-center gap-2 cursor-pointer group select-none"
           >
-            <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl flex items-center justify-center shadow-md transition-transform group-hover:scale-105 shrink-0 ${
+            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0 ${
               appMode === 'offline'
-                ? 'bg-gradient-to-br from-red-600 via-red-700 to-red-900 shadow-red-500/20'
-                : 'bg-gradient-to-br from-purple-600 via-purple-700 to-purple-900 shadow-purple-500/20'
+                ? 'bg-gradient-to-br from-red-600 to-rose-700'
+                : 'bg-gradient-to-br from-purple-600 to-indigo-700'
             }`}>
-              <span className="text-white font-black text-xl sm:text-2xl tracking-tighter">SB</span>
+              <span className="text-white font-black text-xs sm:text-sm tracking-tight">SB</span>
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-lg sm:text-2xl font-black tracking-tight text-slate-900">
-                  SMART <span className={appMode === 'offline' ? 'text-red-600' : 'text-purple-600'}>BAZZAR</span>
+              <div className="flex items-center gap-1">
+                <span className="text-sm sm:text-base font-black tracking-tight text-white">
+                  SMART <span className={appMode === 'offline' ? 'text-rose-400' : 'text-purple-400'}>BAZZAR</span>
                 </span>
-                <span className={`px-1.5 py-0.5 text-[9px] uppercase font-black tracking-wider rounded border ${
+                <span className={`px-1 py-0.2 text-[7px] sm:text-[8px] uppercase font-black tracking-wider rounded border ${
                   appMode === 'offline' 
-                    ? 'bg-red-50 text-red-700 border-red-200' 
-                    : 'bg-purple-50 text-purple-700 border-purple-200'
+                    ? 'bg-red-500/20 text-red-300 border-red-500/40' 
+                    : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
                 }`}>
-                  {appMode === 'offline' ? 'Offline Mall' : 'Online Store'}
+                  {appMode === 'offline' ? 'Mall' : 'Store'}
                 </span>
               </div>
-              <p className="text-[11px] text-slate-500 font-medium">
-                NH-80 Main Road, Lakhisarai, Bihar
-              </p>
             </div>
           </div>
 
@@ -243,17 +263,17 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.id}
                   id={`nav-link-${link.id}`}
                   onClick={() => handleNavClick(link.id)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 relative ${
+                  className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1 relative ${
                     isActive
                       ? appMode === 'offline'
-                        ? 'bg-red-600 text-white font-black shadow-xs'
-                        : 'bg-purple-600 text-white font-black shadow-xs'
-                      : 'text-slate-700 hover:text-slate-950 hover:bg-slate-100/80'
+                        ? 'bg-red-600 text-white font-bold shadow-xs'
+                        : 'bg-purple-600 text-white font-bold shadow-xs'
+                      : 'text-slate-300 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <span>{link.label}</span>
                   {link.badge && (
-                    <span className="px-1.5 py-0.2 text-[9px] bg-amber-500 text-slate-950 rounded-full font-black uppercase">
+                    <span className="px-1 py-0.1 text-[7px] bg-amber-400 text-slate-950 rounded-full font-black uppercase">
                       {link.badge}
                     </span>
                   )}
@@ -261,34 +281,35 @@ export const Navbar: React.FC<NavbarProps> = ({
               );
             })}
 
-            {/* About User & Documents Tab in Navbar */}
+            {/* Admin Console Tab Button */}
             <button
-              id="nav-link-account"
-              onClick={() => handleNavClick('account')}
-              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === 'account'
-                  ? 'bg-amber-500 text-slate-950 font-black shadow-xs'
-                  : 'text-slate-700 hover:text-amber-700 hover:bg-amber-50/60'
+              id="nav-link-admin"
+              onClick={() => handleNavClick('admin')}
+              className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                activeTab === 'admin'
+                  ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
+                  : 'text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30'
               }`}
+              title="Website Management & Admin Dashboard"
             >
-              <FileText className="w-3.5 h-3.5 text-amber-600" />
-              <span>Personal Documents</span>
+              <ShieldCheck className="w-3 h-3 text-amber-400" />
+              <span>Admin</span>
             </button>
           </nav>
 
           {/* Action Quick Buttons */}
-          <div className="hidden sm:flex items-center space-x-2.5">
+          <div className="hidden sm:flex items-center space-x-1.5">
             
             {/* Shopping Bag Button with Live Badge */}
             <button
               id="shopping-bag-btn"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-800 transition-colors shadow-2xs cursor-pointer"
+              className="relative p-1.5 rounded-lg border border-white/15 bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
               title="View Shopping Bag"
             >
-              <ShoppingBag className="w-5 h-5 text-slate-800" />
+              <ShoppingBag className="w-3.5 h-3.5 text-white" />
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 bg-amber-500 text-slate-950 font-black text-[11px] rounded-full flex items-center justify-center shadow-xs">
+                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-0.5 bg-amber-400 text-slate-950 font-black text-[9px] rounded-full flex items-center justify-center shadow-xs">
                   {cartCount}
                 </span>
               )}
@@ -299,69 +320,66 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-900 transition-colors cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-white/15 bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer text-[11px]"
                 >
                   <img
                     src={user.avatar || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=80'}
                     alt={user.name}
-                    className="w-6 h-6 rounded-full object-cover border border-amber-500"
+                    className="w-4 h-4 rounded-full object-cover border border-amber-400"
                   />
-                  <div className="text-left leading-tight hidden xl:block">
-                    <span className="block text-xs font-bold">{user.name.split(' ')[0]}</span>
-                    <span className="text-[10px] text-amber-800 font-semibold">{user.memberTier} VIP</span>
-                  </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-600" />
+                  <span className="font-semibold text-white max-w-[70px] truncate">{user.name.split(' ')[0]}</span>
+                  <ChevronDown className="w-3 h-3 text-slate-400" />
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in-50 duration-150">
-                    <div className="px-4 py-2.5 border-b border-slate-100">
-                      <p className="text-xs font-bold text-slate-900">{user.name}</p>
-                      <p className="text-[11px] text-slate-500 truncate">{user.email}</p>
-                      <div className="flex items-center gap-1.5 mt-1.5">
-                        <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">
-                          {user.points} Coins
-                        </span>
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-bold">
-                          KYC {user.kycStatus === 'verified' ? 'Verified' : 'Pending'}
-                        </span>
-                      </div>
+                  <div className="absolute right-0 mt-1.5 w-56 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 py-1.5 z-50 animate-in fade-in-50 duration-150 text-slate-200">
+                    <div className="px-3 py-1.5 border-b border-white/10">
+                      <p className="text-xs font-bold text-white">{user.name}</p>
+                      <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
                     </div>
 
                     <button
-                      onClick={() => handleNavClick('account')}
-                      className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      onClick={() => handleNavClick('admin')}
+                      className="w-full text-left px-3 py-1.5 text-xs text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 flex items-center gap-2 font-bold"
                     >
-                      <FileText className="w-4 h-4 text-amber-500" />
-                      <span>About User & Personal Documents</span>
+                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Admin Management</span>
                     </button>
 
                     <button
                       onClick={() => handleNavClick('account')}
-                      className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      className="w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 flex items-center gap-2"
                     >
-                      <Package className="w-4 h-4 text-amber-500" />
-                      <span>My Orders & Live Tracking</span>
+                      <FileText className="w-3.5 h-3.5 text-slate-400" />
+                      <span>My Documents Vault</span>
+                    </button>
+
+                    <button
+                      onClick={() => handleNavClick('account')}
+                      className="w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 flex items-center gap-2"
+                    >
+                      <Package className="w-3.5 h-3.5 text-slate-400" />
+                      <span>My Orders & Tracking</span>
                     </button>
 
                     <button
                       onClick={() => handleNavClick('membership')}
-                      className="w-full text-left px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                      className="w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 flex items-center gap-2"
                     >
-                      <Gift className="w-4 h-4 text-amber-500" />
+                      <Gift className="w-3.5 h-3.5 text-amber-400" />
                       <span>Smart Club Rewards</span>
                     </button>
 
-                    <div className="border-t border-slate-100 mt-1 pt-1">
+                    <div className="border-t border-white/10 mt-1 pt-1">
                       <button
                         onClick={() => {
                           logout();
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full text-left px-4 py-2 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2 font-medium"
+                        className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/10 flex items-center gap-2 font-medium"
                       >
-                        <LogOut className="w-4 h-4" />
-                        <span>Sign Out ({user.name})</span>
+                        <LogOut className="w-3.5 h-3.5" />
+                        <span>Sign Out ({user.name.split(' ')[0]})</span>
                       </button>
                     </div>
                   </div>
@@ -370,9 +388,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 transition-colors cursor-pointer"
               >
-                <User className="w-3.5 h-3.5 text-slate-700" />
+                <User className="w-3 h-3 text-slate-950" />
                 <span>Sign In</span>
               </button>
             )}
@@ -380,15 +398,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Mobile Right Controls: Bag + Hamburger Toggle */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-1.5 lg:hidden">
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2.5 rounded-xl border border-slate-200 bg-white text-slate-800 transition-colors"
+              className="relative p-1.5 rounded-lg border border-white/15 bg-white/10 hover:bg-white/20 text-white transition-colors"
               aria-label="View Shopping Bag"
             >
-              <ShoppingBag className="w-5 h-5 text-slate-800" />
+              <ShoppingBag className="w-4 h-4 text-white" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-4.5 h-4.5 px-1 bg-amber-500 text-slate-950 font-black text-[10px] rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-0.5 bg-amber-400 text-slate-950 font-black text-[9px] rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -397,10 +415,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2.5 rounded-xl text-slate-800 hover:bg-slate-100 focus:outline-none transition-colors border border-slate-200"
+              className="p-1.5 rounded-lg text-white hover:bg-white/10 focus:outline-none transition-colors border border-white/15"
               aria-label="Toggle Navigation Menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
 
@@ -409,63 +427,63 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-slate-200 bg-white shadow-2xl animate-in slide-in-from-top-2 duration-200">
+        <div className="lg:hidden border-t border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl animate-in slide-in-from-top-2 duration-200 text-slate-200">
           
           {/* Mobile Mode Switcher (Red vs Purple) */}
-          <div className="p-3 bg-slate-900 text-white flex items-center justify-between gap-2 border-b border-slate-800">
+          <div className="p-2.5 bg-black/40 text-white flex items-center justify-between gap-2 border-b border-white/10">
             <span className="text-[11px] font-semibold text-slate-300">Experience Mode:</span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => handleSwitchToMode('offline')}
-                className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all ${
-                  appMode === 'offline' ? 'bg-red-600 text-white shadow' : 'bg-slate-800 text-slate-400 hover:text-white'
+                className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-all ${
+                  appMode === 'offline' ? 'bg-red-600 text-white shadow-xs' : 'bg-white/10 text-slate-400 hover:text-white'
                 }`}
               >
-                🏬 Offline
+                🏬 Offline Mall
               </button>
               <button
                 onClick={() => handleSwitchToMode('online')}
-                className={`px-2.5 py-1 rounded-full text-xs font-bold transition-all ${
-                  appMode === 'online' ? 'bg-purple-600 text-white shadow' : 'bg-slate-800 text-slate-400 hover:text-white'
+                className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-all ${
+                  appMode === 'online' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white/10 text-slate-400 hover:text-white'
                 }`}
               >
-                🛍️ Online
+                🛍️ Online Store
               </button>
             </div>
           </div>
 
           {/* User Sign In / Account Section in Mobile Drawer */}
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div className="p-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
             {user ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <img
                   src={user.avatar || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=80'}
                   alt={user.name}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-amber-500"
+                  className="w-8 h-8 rounded-full object-cover border border-amber-400"
                 />
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900">{user.name}</h4>
-                  <p className="text-[11px] text-amber-700 font-semibold">{user.memberTier} VIP • {user.documents?.length || 0} Docs</p>
+                  <h4 className="text-xs font-bold text-white">{user.name}</h4>
+                  <p className="text-[10px] text-amber-300 font-medium">{user.memberTier} VIP • {user.documents?.length || 0} Docs</p>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <User className="w-5 h-5 text-slate-500" />
-                <span className="text-xs font-bold text-slate-800">User Account</span>
+                <User className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold text-white">Customer Account</span>
               </div>
             )}
 
             {user ? (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => handleNavClick('account')}
-                  className="px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold"
+                  className="px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 text-xs font-bold"
                 >
                   My Docs
                 </button>
                 <button
                   onClick={logout}
-                  className="px-2 py-1.5 rounded-xl bg-red-100 text-red-700 text-xs font-bold"
+                  className="px-2 py-1 rounded-lg bg-red-500/20 text-red-300 text-xs font-medium border border-red-500/30"
                 >
                   Logout
                 </button>
@@ -476,7 +494,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   setIsAuthModalOpen(true);
                 }}
-                className="px-4 py-1.5 rounded-xl bg-amber-500 text-slate-950 font-bold text-xs"
+                className="px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-bold text-xs"
               >
                 Sign In
               </button>
@@ -484,7 +502,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Navigation Links */}
-          <div className="px-4 py-3 space-y-1 max-h-[60vh] overflow-y-auto">
+          <div className="px-3 py-2 space-y-1 max-h-[60vh] overflow-y-auto">
             {currentNavLinks.map((link) => {
               const isActive = activeTab === link.id;
               return (
@@ -492,53 +510,42 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.id}
                   id={`mobile-nav-${link.id}`}
                   onClick={() => handleNavClick(link.id)}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? appMode === 'offline' ? 'bg-red-600 text-white' : 'bg-purple-600 text-white'
-                      : 'text-slate-700 hover:bg-slate-100'
+                      ? appMode === 'offline' ? 'bg-red-600 text-white font-bold' : 'bg-purple-600 text-white font-bold'
+                      : 'text-slate-300 hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5">
                     {link.icon}
                     <span>{link.label}</span>
                   </div>
-                  <ChevronRight className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                  <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
                 </button>
               );
             })}
 
             <button
-              onClick={() => handleNavClick('account')}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold text-amber-900 bg-amber-50 border border-amber-200 mt-2"
+              onClick={() => handleNavClick('admin')}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 mt-2"
             >
-              <div className="flex items-center gap-3">
-                <FileText className="w-4 h-4 text-amber-600" />
-                <span>Personal Documents & KYC</span>
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-4 h-4 text-amber-400" />
+                <span>Admin & Owner Console</span>
               </div>
-              <ChevronRight className="w-4 h-4 text-amber-600" />
+              <ChevronRight className="w-3.5 h-3.5 text-amber-400" />
             </button>
 
-            {appMode === 'offline' && (
-              <div className="pt-3 border-t border-slate-200 grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenMovieBooking();
-                  }}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900"
-                >
-                  <Film className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Book Movie</span>
-                </button>
-                <button
-                  onClick={() => handleNavClick('tour')}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-amber-500"
-                >
-                  <Compass className="w-3.5 h-3.5" />
-                  <span>360° Walkthrough</span>
-                </button>
+            <button
+              onClick={() => handleNavClick('account')}
+              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-200 bg-white/5 border border-white/10 mt-1"
+            >
+              <div className="flex items-center gap-2.5">
+                <FileText className="w-4 h-4 text-slate-400" />
+                <span>Personal Documents & KYC</span>
               </div>
-            )}
+              <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+            </button>
           </div>
         </div>
       )}

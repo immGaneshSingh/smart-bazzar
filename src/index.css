@@ -3,6 +3,18 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    /* Harmonious combination of multiple aesthetic light colors:
+       Warm sunlight amber, delicate periwinkle lavender, soft blush rose, and fresh sage mint */
+    background: 
+      radial-gradient(ellipse 65% 50% at 8% 8%, rgba(254, 243, 199, 0.45), transparent 60%),
+      radial-gradient(ellipse 60% 45% at 92% 15%, rgba(224, 231, 255, 0.55), transparent 60%),
+      radial-gradient(ellipse 55% 45% at 15% 55%, rgba(254, 226, 226, 0.40), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 88% 75%, rgba(220, 252, 231, 0.45), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 90%, rgba(253, 230, 138, 0.35), transparent 60%),
+      linear-gradient(135deg, #fbfaf6 0%, #f4f5fa 28%, #fdf2f4 58%, #f0faf4 85%, #fbf8f2 100%);
+    background-attachment: fixed;
+    color: #0f172a;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {

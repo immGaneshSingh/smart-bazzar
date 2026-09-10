@@ -81,47 +81,16 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
               </p>
             </div>
 
-            {/* Quick Demo Customer Account Switchers */}
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <p className="text-xs font-bold text-slate-800 mb-2">
-                Test Account Isolation (Switch between customers):
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    login({
-                      phone: '+91 62044 12345',
-                      name: 'Ganesh Singh'
-                    });
-                  }}
-                  className="p-3.5 rounded-2xl bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-left transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-xs text-slate-950">Ganesh Singh</span>
-                    <span className="text-[10px] font-bold bg-amber-200/80 text-amber-900 px-1.5 py-0.5 rounded-md">Platinum</span>
-                  </div>
-                  <p className="text-xs text-slate-600 font-mono mt-1">+91 62044 12345</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Lakhisarai • 4 Documents • 2 Orders</p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    login({
-                      phone: '+91 94312 88990',
-                      name: 'Priya Sharma'
-                    });
-                  }}
-                  className="p-3.5 rounded-2xl bg-purple-50 hover:bg-purple-100/80 border border-purple-200 text-left transition-all cursor-pointer group"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-extrabold text-xs text-slate-950">Priya Sharma</span>
-                    <span className="text-[10px] font-bold bg-purple-200/80 text-purple-900 px-1.5 py-0.5 rounded-md">Gold</span>
-                  </div>
-                  <p className="text-xs text-slate-600 font-mono mt-1">+91 94312 88990</p>
-                  <p className="text-[11px] text-slate-500 mt-1">Patna • 2 Documents • 1 Order</p>
-                </button>
+            {/* Sign In & Isolation Information */}
+            <div className="mt-6 pt-6 border-t border-slate-100 text-center">
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs text-slate-600 space-y-1">
+                <p className="font-semibold text-slate-900 flex items-center justify-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  Protected Account Space
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Please sign in with your mobile number. Your addresses, orders, and uploaded documents will be securely accessible.
+                </p>
               </div>
             </div>
 
@@ -187,7 +156,7 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
   };
 
   return (
-    <div className="py-12 bg-slate-50 min-h-screen">
+    <div className="py-12 bg-transparent min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Customer Header Card */}

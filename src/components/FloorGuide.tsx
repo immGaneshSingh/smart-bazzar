@@ -34,7 +34,7 @@ export const FloorGuide: React.FC<FloorGuideProps> = ({ onNavigate, onOpenVirtua
   });
 
   return (
-    <section className="py-16 bg-white border-b border-slate-200">
+    <section className="py-16 bg-transparent border-b border-slate-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -72,7 +72,7 @@ export const FloorGuide: React.FC<FloorGuideProps> = ({ onNavigate, onOpenVirtua
                 className={`flex-shrink-0 px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer border ${
                   isSelected
                     ? 'bg-slate-900 text-amber-400 border-slate-900 shadow-md scale-[1.02]'
-                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border-slate-200'
+                    : 'bg-white/80 text-slate-700 hover:bg-white border-slate-200/80 shadow-2xs'
                 }`}
               >
                 <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export const FloorGuide: React.FC<FloorGuideProps> = ({ onNavigate, onOpenVirtua
         </div>
 
         {/* Active Floor Card Showcase */}
-        <div className="bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden shadow-sm">
+        <div className="bg-white/85 backdrop-blur-xs rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-12">
             
             {/* Left Image & Virtual Link */}

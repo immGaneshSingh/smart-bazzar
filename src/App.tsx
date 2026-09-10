@@ -20,6 +20,7 @@ import { SmartParkingPage } from './components/SmartParkingPage';
 import { VirtualTourPage } from './components/VirtualTourPage';
 import { OnlineShoppingPage } from './components/OnlineShoppingPage';
 import { CustomerAccountPage } from './components/CustomerAccountPage';
+import { AdminDashboard } from './components/AdminDashboard';
 
 // E-Commerce State & Modals
 import { ShopProvider } from './context/ShopContext';
@@ -41,11 +42,14 @@ import {
   Car, 
   Compass, 
   ArrowUp,
-  UserCheck
+  UserCheck,
+  Rainbow,
+  ArrowLeft
 } from 'lucide-react';
 
 export function App() {
   const [activeSection, setActiveSection] = useState<ActiveTab>('home');
+  const [navHistory, setNavHistory] = useState<ActiveTab[]>(['home']);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
   // Modals state
@@ -56,8 +60,50 @@ export function App() {
 
   // Scroll to top on section change
   const handleNavigate = (sectionId: ActiveTab) => {
+    setNavHistory((prev) => {
+      if (prev[prev.length - 1] === sectionId) return prev;
+      return [...prev, sectionId];
+    });
     setActiveSection(sectionId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Back button functionality
+  const handleGoBack = () => {
+    // 1. Close open modals first
+    if (isMovieBookingOpen) {
+      setIsMovieBookingOpen(false);
+      return;
+    }
+    if (isParkingModalOpen) {
+      setIsParkingModalOpen(false);
+      return;
+    }
+    if (isVirtualTourOpen) {
+      setIsVirtualTourOpen(false);
+      return;
+    }
+
+    // 2. Navigate back in history
+    if (navHistory.length > 1) {
+      const updated = [...navHistory];
+      updated.pop(); // remove current section
+      const prevTab = updated[updated.length - 1] || 'home';
+      setNavHistory(updated);
+      setActiveSection(prevTab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (activeSection !== 'home') {
+      setActiveSection('home');
+      setNavHistory(['home']);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // If already at home, scroll top or browser back
+      if (window.scrollY > 150) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (window.history.length > 1) {
+        window.history.back();
+      }
+    }
   };
 
   useEffect(() => {
@@ -79,7 +125,7 @@ export function App() {
 
   return (
     <ShopProvider>
-      <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col selection:bg-amber-500 selection:text-slate-950">
+      <div className="min-h-screen bg-transparent text-slate-900 font-sans antialiased flex flex-col selection:bg-amber-500 selection:text-slate-950">
       
       {/* 1. Global Announcement Ticker */}
       <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 text-white text-[11px] font-medium py-1.5 px-4 border-b border-amber-500/20">
@@ -241,6 +287,11 @@ export function App() {
           <OnlineShoppingPage onNavigate={handleNavigate} />
         )}
 
+        {/* DEDICATED SECURE ADMIN DASHBOARD & MASTER ACCESS */}
+        {activeSection === 'admin' && (
+          <AdminDashboard />
+        )}
+
         {/* RECREATED ABOUT & PERSONAL DOCUMENTS / ACCOUNT PAGE FOR EACH USER */}
         {(activeSection === 'account' || activeSection === 'about' || activeSection === 'owner') && (
           <CustomerAccountPage onNavigate={handleNavigate} initialTab="documents" />
@@ -342,13 +393,34 @@ export function App() {
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         </button>
 
-        {/* 360 Virtual Tour Floating Button */}
+        {/* Hidden SVG defs for vibrant Rainbow stroke */}
+        <svg width="0" height="0" className="absolute pointer-events-none" aria-hidden="true">
+          <defs>
+            <linearGradient id="rainbow-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#ef4444" />
+              <stop offset="18%" stopColor="#f97316" />
+              <stop offset="36%" stopColor="#eab308" />
+              <stop offset="54%" stopColor="#22c55e" />
+              <stop offset="72%" stopColor="#06b6d4" />
+              <stop offset="88%" stopColor="#3b82f6" />
+              <stop offset="100%" stopColor="#a855f7" />
+            </linearGradient>
+          </defs>
+        </svg>
+
+        {/* Small-Size Functional Rainbow Back Button */}
         <button
-          onClick={() => handleNavigate('tour')}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-xs font-black shadow-xl hover:from-amber-400 hover:to-amber-500 cursor-pointer transition-all hover:scale-105"
+          id="rainbow-back-button"
+          onClick={handleGoBack}
+          title="Back / Return to previous view"
+          aria-label="Back / Return to previous view"
+          className="group relative inline-flex items-center p-[1.5px] rounded-full bg-gradient-to-r from-red-500 via-amber-400 via-emerald-400 via-sky-400 to-purple-500 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
         >
-          <Compass className="w-4 h-4" />
-          <span>360° Virtual Tour</span>
+          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-slate-800 text-xs font-bold backdrop-blur-xs transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5 text-slate-600 group-hover:-translate-x-0.5 transition-transform" />
+            <Rainbow className="w-4 h-4" stroke="url(#rainbow-gradient)" />
+            <span className="text-[11px] font-extrabold tracking-tight text-slate-800">Back</span>
+          </span>
         </button>
 
         {/* Scroll To Top */}

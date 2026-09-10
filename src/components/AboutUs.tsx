@@ -22,7 +22,7 @@ interface AboutUsProps {
 
 export const AboutUs: React.FC<AboutUsProps> = ({ onNavigate }) => {
   return (
-    <section className="py-16 sm:py-24 bg-slate-50 min-h-screen">
+    <section className="py-16 sm:py-24 bg-transparent min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}

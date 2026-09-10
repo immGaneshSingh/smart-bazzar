@@ -1259,6 +1259,514 @@ export const ONLINE_PRODUCTS: OnlineProduct[] = [
       'Retains natural pollen, enzymes, and therapeutic bee propolis',
       'Packaged in reusable heavy glass hexagonal bottle'
     ]
+  },
+  {
+    id: 'prod-elec-03',
+    name: 'Apple Watch SE GPS (44mm Midnight Aluminum Case & Sport Band)',
+    category: 'electronics',
+    categoryLabel: 'Smart Wearables & Fitness',
+    brand: 'Apple',
+    price: 25999,
+    originalPrice: 29900,
+    discountPercent: 13,
+    rating: 4.9,
+    reviewsCount: 420,
+    image: 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Croma Electronics Hub',
+    floor: 'Floor 2',
+    inStock: 14,
+    deliveryTime: 'Pan-India 2-3 Days • 1-Yr Official Apple Warranty',
+    tags: ['Apple Official', 'Heart Rate & Crash Detection', 'Water Resistant 50m'],
+    isFeatured: true,
+    unitOrSizeOptions: ['44mm Midnight', '40mm Starlight'],
+    description: 'Essential features to help you stay connected, active, healthy, and safe. High and low heart rate notifications, irregular rhythm notification, and sleep stages tracking.',
+    highlights: [
+      'Retina OLED display with up to 1000 nits brightness',
+      'Crash Detection and Fall Detection with Emergency SOS',
+      'Track your daily activity on iPhone Fitness app',
+      'Water resistant to 50 meters, swim-proof design'
+    ]
+  },
+  {
+    id: 'prod-elec-04',
+    name: 'Sony WH-1000XM4 Wireless Noise Cancelling Over-Ear Headphones',
+    category: 'electronics',
+    categoryLabel: 'Audio & Premium Headphones',
+    brand: 'Sony',
+    price: 19990,
+    originalPrice: 29990,
+    discountPercent: 33,
+    rating: 4.8,
+    reviewsCount: 890,
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Croma Electronics Hub',
+    floor: 'Floor 2',
+    inStock: 18,
+    deliveryTime: 'Pan-India 2-3 Days • Express Available',
+    tags: ['Industry Leading ANC', '30hr Battery', 'Multipoint Bluetooth'],
+    isFeatured: true,
+    unitOrSizeOptions: ['Black', 'Silver'],
+    description: 'Industry-leading noise canceling with Dual Noise Sensor technology. Next-level music with Edge-AI, co-developed with Sony Music Studios Tokyo.',
+    highlights: [
+      'Up to 30-hour battery life with quick charging (10 min charge for 5 hours of playback)',
+      'Touch Sensor controls to pause, play, skip tracks, and control volume',
+      'Speak-to-chat technology automatically reduces volume during conversations',
+      'Superior call quality with precise voice pickup'
+    ]
+  },
+  {
+    id: 'prod-elec-05',
+    name: 'Xiaomi 20000mAh 18W Fast Charging Power Bank 3i (Triple Output)',
+    category: 'electronics',
+    categoryLabel: 'Mobile Accessories & Charging',
+    brand: 'Xiaomi',
+    price: 1699,
+    originalPrice: 2499,
+    discountPercent: 32,
+    rating: 4.7,
+    reviewsCount: 1450,
+    image: 'https://images.unsplash.com/photo-1609592426867-0c7dfbfad135?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Croma Electronics Hub',
+    floor: 'Floor 2',
+    inStock: 40,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['18W Fast Charging', 'Triple Port', 'Flight Approved'],
+    unitOrSizeOptions: ['Sandstone Black'],
+    description: 'Massive 20000mAh lithium-polymer capacity allows simultaneous high-speed charging of up to 3 devices with dual-input Type-C and Micro-USB ports.',
+    highlights: [
+      '18W Two-Way fast charging support',
+      '12-layer advanced circuit protection chips',
+      'Smart power management for low power devices like smart bands',
+      'Durable textured matte body resistant to scratches'
+    ]
+  },
+  {
+    id: 'prod-elec-06',
+    name: 'Philips Series 3000 All-in-One Multi-Grooming Trimmer (9 Attachments)',
+    category: 'electronics',
+    categoryLabel: 'Personal Grooming & Care',
+    brand: 'Philips',
+    price: 1599,
+    originalPrice: 2395,
+    discountPercent: 33,
+    rating: 4.6,
+    reviewsCount: 680,
+    image: 'https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Croma Electronics Hub',
+    floor: 'Floor 2',
+    inStock: 25,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['Self-Sharpening Blades', '60 Min Runtime', 'Water-Washable'],
+    unitOrSizeOptions: ['9-in-1 Kit'],
+    description: 'Craft your own personal look with this versatile trimmer, which includes 9 quality tools for styling your face, hair, and body.',
+    highlights: [
+      'Self-sharpening skin-friendly tempered steel blades',
+      'Includes nose & ear trimmer attachment',
+      '6 impact-resistant guards for beard and hair',
+      'Fully washable attachments for easy cleaning'
+    ]
+  },
+  {
+    id: 'prod-women-05',
+    name: 'Fabindia Hand Block Printed Pure Chanderi Silk Saree with Zari Border',
+    category: 'women',
+    categoryLabel: "Women's Ethnic Sarees",
+    brand: 'Fabindia',
+    price: 3699,
+    originalPrice: 5499,
+    discountPercent: 32,
+    rating: 4.9,
+    reviewsCount: 230,
+    image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Fabindia Craft Pavilion',
+    floor: 'Floor 1',
+    inStock: 16,
+    deliveryTime: 'Pan-India 2-4 Days Shipping',
+    tags: ['Pure Chanderi Silk', 'Traditional Bagru Print', 'Handloom Verified'],
+    isFeatured: true,
+    unitOrSizeOptions: ['Free Size (Includes Unstitched Blouse)'],
+    description: 'Luxurious lightweight Chanderi silk saree adorned with heritage Rajasthani Bagru hand-block floral butis and a shimmering woven zari pallu.',
+    highlights: [
+      'Crafted from natural silk and cotton yarns for graceful drape',
+      'Includes 80cm matching unstitched blouse piece',
+      'Certified Silk Mark guaranteed quality',
+      'Perfect for festive occasions, weddings, and formal pujas'
+    ]
+  },
+  {
+    id: 'prod-women-06',
+    name: 'Biba Festive Embroidered Anarkali Kurta & Churidar Set with Dupatta',
+    category: 'women',
+    categoryLabel: "Women's Ethnic Sets",
+    brand: 'Biba',
+    price: 2999,
+    originalPrice: 5999,
+    discountPercent: 50,
+    rating: 4.8,
+    reviewsCount: 380,
+    image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Biba Brand Outlet',
+    floor: 'Floor 1',
+    inStock: 22,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['Biba Festive', 'Anarkali Set', 'Gota Patti Work'],
+    unitOrSizeOptions: ['32 (XS)', '34 (S)', '36 (M)', '38 (L)', '40 (XL)'],
+    description: 'Stunning royal emerald green flared Anarkali kurta accented with intricate zari embroidery on the yoke, paired with comfortable churidar pants and a printed dupatta.',
+    highlights: [
+      'Flowing poly-silk fabric with 100% cotton inner lining',
+      'Intricate gota patti lace border along the bottom hem',
+      'Includes 2.25m lightweight chiffon dupatta',
+      'Dry clean recommended'
+    ]
+  },
+  {
+    id: 'prod-women-07',
+    name: 'W for Woman Rayon Flared Calf-Length Ethnic Printed Fusion Kurti',
+    category: 'women',
+    categoryLabel: "Women's Daily Kurtis",
+    brand: 'W for Woman',
+    price: 1199,
+    originalPrice: 2299,
+    discountPercent: 47,
+    rating: 4.6,
+    reviewsCount: 420,
+    image: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'W Store Lakhisarai',
+    floor: 'Floor 1',
+    inStock: 35,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['Daily Wear', 'Breathable Rayon', 'Contemporary Cut'],
+    unitOrSizeOptions: ['8 (S)', '10 (M)', '12 (L)', '14 (XL)'],
+    description: 'Contemporary calf-length fusion kurti in indigo blue geometric motifs with a round neckline, three-quarter sleeves, and asymmetric hemline.',
+    highlights: [
+      '100% Viscose Rayon for soft, airy comfort in Bihar climate',
+      'Colorfast reactive dye technology',
+      'Pairs effortlessly with leggings, palazzos, or jeans',
+      'Machine wash gentle cycle'
+    ]
+  },
+  {
+    id: 'prod-men-06',
+    name: 'Manyavar Royal Heritage Raw Silk Embroidered Nehru Jacket Waistcoat',
+    category: 'men',
+    categoryLabel: "Men's Ethnic Jackets",
+    brand: 'Manyavar',
+    price: 2499,
+    originalPrice: 4999,
+    discountPercent: 50,
+    rating: 4.9,
+    reviewsCount: 310,
+    image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Manyavar Store',
+    floor: 'Floor 1',
+    inStock: 20,
+    deliveryTime: 'Pan-India 2-4 Days Shipping',
+    tags: ['Festive Essential', 'Nehru Collar', 'Zari Buttons'],
+    isFeatured: true,
+    unitOrSizeOptions: ['38 (S)', '40 (M)', '42 (L)', '44 (XL)'],
+    description: 'Elevate your festive attire with this maroon raw silk Nehru jacket featuring metallic antique brass buttons and a chest pocket for your pocket square.',
+    highlights: [
+      'Premium textured raw silk blend fabric',
+      'Structured mandarin stand-up collar with inner canvas support',
+      'Includes front welt pockets and functional internal ticket pocket',
+      'Pairs seamlessly over any white or cream kurta set'
+    ]
+  },
+  {
+    id: 'prod-men-07',
+    name: "Levi's Men 511 Slim Fit Mid-Rise Dark Stone Wash Stretch Jeans",
+    category: 'men',
+    categoryLabel: "Men's Denim Bottoms",
+    brand: "Levi's",
+    price: 2199,
+    originalPrice: 3999,
+    discountPercent: 45,
+    rating: 4.7,
+    reviewsCount: 760,
+    image: 'https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Smart Bazzar Fashion Hub',
+    floor: 'Floor 1',
+    inStock: 30,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['Original Denim', 'All-Day Stretch', '5-Pocket Classic'],
+    unitOrSizeOptions: ['30', '32', '34', '36', '38'],
+    description: 'The iconic 511 Slim Fit Jean is a modern classic. Cut close without being too tight, made with +Levi’s Flex advanced stretch for maximum comfort.',
+    highlights: [
+      'Authentic Levi’s red tab on back right pocket',
+      'Heavy-duty zip fly with shank button closure',
+      'Reinforced bar-tack stitching at stress points',
+      'Pre-shrunk ring-spun cotton denim'
+    ]
+  },
+  {
+    id: 'prod-men-08',
+    name: 'Van Heusen Men Premium Egyptian Giza Cotton Formal Shirt',
+    category: 'men',
+    categoryLabel: "Men's Executive Formals",
+    brand: 'Van Heusen',
+    price: 1499,
+    originalPrice: 2799,
+    discountPercent: 46,
+    rating: 4.8,
+    reviewsCount: 390,
+    image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Pantaloons Executive Store',
+    floor: 'Floor 1',
+    inStock: 28,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['100% Giza Cotton', 'Easy Iron Finish', 'Executive Wear'],
+    unitOrSizeOptions: ['39 (Slim)', '40 (Slim)', '42 (Reg)', '44 (Reg)'],
+    description: 'Impeccably tailored from extra-long staple Egyptian Giza cotton, this crisp formal shirt features a cutaway collar and mother-of-pearl buttons.',
+    highlights: [
+      'Silky smooth 120s two-ply combed yarn fabric',
+      'Wrinkle-resistant easy iron protective finish',
+      'Fused interlining ensures collar stays firm all day',
+      'Ideal for business meetings, conferences, and formal ceremonies'
+    ]
+  },
+  {
+    id: 'prod-bihar-05',
+    name: 'Handmade Madhubani Fish & Tree of Life Canvas Acrylic Painting (Framed 24x18 in)',
+    category: 'bihar-craft',
+    categoryLabel: 'Authentic Mithila Folk Art',
+    brand: 'Mithila Kala Kendra',
+    price: 2850,
+    originalPrice: 4500,
+    discountPercent: 36,
+    rating: 5.0,
+    reviewsCount: 195,
+    image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Made in Bihar Pavilion',
+    floor: 'Floor 3',
+    inStock: 8,
+    deliveryTime: 'Pan-India 3-5 Days • Shockproof Wooden Crate Packaging',
+    tags: ['GI Tagged Folk Art', 'Hand-Painted on Canvas', 'Certificate of Authenticity'],
+    isFeatured: true,
+    isBiharSpecial: true,
+    unitOrSizeOptions: ['24x18 inches (With Teakwood Frame)'],
+    description: 'Original hand-painted Madhubani masterpiece by National Awardee Mithila artists using fine bamboo nib pens and natural acrylic pigments.',
+    highlights: [
+      'Symbolizes fertility, good luck, and spiritual harmony',
+      'Comes with handmade solid teakwood floating frame with shatterproof acrylic glass',
+      'Signed and stamped by the artisan master craftsperson',
+      'Direct revenue support for village women artisans of Ranti and Jitwarpur'
+    ]
+  },
+  {
+    id: 'prod-bihar-06',
+    name: 'Sikki Golden Grass Artisan Storage Basket with Lid (Handwoven in Madhubani)',
+    category: 'bihar-craft',
+    categoryLabel: 'Eco-Friendly Heritage Crafts',
+    brand: 'Bihar Sikki Gramodyog',
+    price: 890,
+    originalPrice: 1400,
+    discountPercent: 36,
+    rating: 4.9,
+    reviewsCount: 140,
+    image: 'https://images.unsplash.com/photo-1590736969955-71cc94801759?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Made in Bihar Pavilion',
+    floor: 'Floor 3',
+    inStock: 25,
+    deliveryTime: 'Pan-India 2-4 Days Shipping',
+    tags: ['Golden Grass Craft', 'Biodegradable', 'Heritage Home Decor'],
+    isBiharSpecial: true,
+    unitOrSizeOptions: ['Medium (10x8 inches)'],
+    description: 'Handwoven from wild golden Sikki grass found along riverbeds in Northern Bihar. Colored using organic vegetable extracts to form intricate folk patterns.',
+    highlights: [
+      '100% natural, biodegradable, and organically preserved',
+      'Sturdy braided weave with tight-fitting dust lid',
+      'Ideal for jewelry storage, dry fruits, or decorative coffee table centerpiece',
+      'Empowers traditional rural women artisans of Bihar'
+    ]
+  },
+  {
+    id: 'prod-bihar-07',
+    name: 'Bhagalpur Organic Khadi Cotton Men Kurta Pajama (Natural Indigo Dye)',
+    category: 'bihar-craft',
+    categoryLabel: 'Heritage Khadi Apparels',
+    brand: 'Bhagalpur Weavers Society',
+    price: 1599,
+    originalPrice: 2499,
+    discountPercent: 36,
+    rating: 4.8,
+    reviewsCount: 210,
+    image: 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Made in Bihar Pavilion',
+    floor: 'Floor 3',
+    inStock: 20,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['100% Handspun Khadi', 'Natural Indigo', 'Breathable Summer Wear'],
+    isBiharSpecial: true,
+    unitOrSizeOptions: ['38 (M)', '40 (L)', '42 (XL)', '44 (XXL)'],
+    description: 'Handspun on the charkha and woven on wooden pit-looms in Bhagalpur. Naturally dyed with indigo leaves for an earthy aesthetic and supreme skin comfort.',
+    highlights: [
+      'Authentic certified Khadi Mark product',
+      'Naturally temperature-regulating: cool in summer, warm in winter',
+      'Includes drawstring matching off-white khadi cotton pajama',
+      'Pre-washed to ensure color stability'
+    ]
+  },
+  {
+    id: 'prod-foot-03',
+    name: 'Woodland Men Camel Brown Genuine Nubuck Leather Adventure Trekking Boots',
+    category: 'footwear',
+    categoryLabel: 'Outdoor & Adventure Footwear',
+    brand: 'Woodland',
+    price: 3995,
+    originalPrice: 5995,
+    discountPercent: 33,
+    rating: 4.8,
+    reviewsCount: 650,
+    image: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Woodland Outdoor Store',
+    floor: 'Floor 2',
+    inStock: 18,
+    deliveryTime: 'Pan-India 2-4 Days',
+    tags: ['Genuine Nubuck Leather', 'Deep Lug Traction', 'Water Resistant'],
+    isFeatured: true,
+    unitOrSizeOptions: ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10'],
+    description: 'Rugged all-weather outdoor ankle boots constructed with oil-treated genuine nubuck leather, padded collar, and heavy grooved rubber soles.',
+    highlights: [
+      'Rust-proof brass eyelets with reinforced cord laces',
+      'High traction rubber lug outsole designed for rough terrains',
+      'Cushioned EVA footbed for long walking comfort',
+      'Signature Woodland tree logo embossed on outer side'
+    ]
+  },
+  {
+    id: 'prod-foot-04',
+    name: 'Bata Comfit Women Memory Foam Cushion Slip-On Daily Walking Flats',
+    category: 'footwear',
+    categoryLabel: "Women's Comfort Footwear",
+    brand: 'Bata',
+    price: 1199,
+    originalPrice: 1999,
+    discountPercent: 40,
+    rating: 4.7,
+    reviewsCount: 520,
+    image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Bata Mega Store',
+    floor: 'Floor 2',
+    inStock: 32,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['Memory Foam', 'Anti-Slip Sole', 'Ultra Light'],
+    unitOrSizeOptions: ['UK 4', 'UK 5', 'UK 6', 'UK 7', 'UK 8'],
+    description: 'Featherlight ballerina slip-on flats featuring dual-layer memory foam cushioning that contours to your feet for all-day painless walking.',
+    highlights: [
+      'Breathable laser-cut faux leather upper prevents foot sweating',
+      'Flexible skid-resistant TPR outsole',
+      'Padded collar prevents heel blisters',
+      'Ideal for teachers, working professionals, and daily shopping'
+    ]
+  },
+  {
+    id: 'prod-home-03',
+    name: 'Pure Ayurvedic Hammered Copper Water Dispenser Pot with Brass Tap (5 Liters)',
+    category: 'home-living',
+    categoryLabel: 'Ayurvedic Kitchen & Wellness',
+    brand: 'Smart Home Essentials',
+    price: 1899,
+    originalPrice: 2999,
+    discountPercent: 36,
+    rating: 4.9,
+    reviewsCount: 480,
+    image: 'https://images.unsplash.com/photo-1584992236310-6edddc08acff?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Home & Kitchen Studio',
+    floor: 'Floor 2',
+    inStock: 22,
+    deliveryTime: 'Pan-India 2-4 Days Shipping',
+    tags: ['100% Pure Copper', 'Ayurvedic Tamra Jal', 'Leak-Proof Brass Tap'],
+    isFeatured: true,
+    unitOrSizeOptions: ['5 Liters Capacity'],
+    description: 'Hand-hammered by skilled coppersmiths from 99.4% pure copper. Drinking water stored overnight in copper boosts immunity, aids digestion, and naturally purifies water.',
+    highlights: [
+      'Leak-proof heavy duty chrome-plated brass spigot tap',
+      'Tight-fitting copper lid keeps dust and insects out',
+      'Glossy protective exterior lacquer prevents quick tarnishing',
+      'Tested and certified safe for daily family consumption'
+    ]
+  },
+  {
+    id: 'prod-home-04',
+    name: 'Jaipuri Handloom Pure Cotton 300 TC King Size Double Bedsheet with 2 Pillow Covers',
+    category: 'home-living',
+    categoryLabel: 'Bedding & Handloom Linen',
+    brand: 'Smart Home Essentials',
+    price: 1299,
+    originalPrice: 2499,
+    discountPercent: 48,
+    rating: 4.7,
+    reviewsCount: 390,
+    image: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Home & Kitchen Studio',
+    floor: 'Floor 2',
+    inStock: 35,
+    deliveryTime: 'Pan-India 2-3 Days',
+    tags: ['300 Thread Count', 'King Size 108x108 in', 'Color Fast'],
+    unitOrSizeOptions: ['King Size Double (108 x 108 inches)'],
+    description: 'Sanganeri floral block printed bedsheet woven from long-staple 100% combed cotton for plush softness, breathable comfort, and vibrant bedroom aesthetics.',
+    highlights: [
+      'Generous tuck-in dimensions (108 x 108 inches) fits thick 10-inch mattresses',
+      'Includes two matching 18 x 28 inch zippered pillow cases',
+      'Anti-pilling weave stays smooth even after 50+ machine washes',
+      'Pre-shrunk fabric ensures no size reduction'
+    ]
+  },
+  {
+    id: 'prod-deli-05',
+    name: 'Famous Gaya Khoya Tilkut with Roasted White Sesame & Sugarcane Jaggery (1 Kg Gift Pack)',
+    category: 'delicacies',
+    categoryLabel: 'Traditional Bihar Sweets',
+    brand: 'Gaya Heritage Confectionery',
+    price: 540,
+    originalPrice: 750,
+    discountPercent: 28,
+    rating: 5.0,
+    reviewsCount: 510,
+    image: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Taste of Bihar Pavilion',
+    floor: 'Floor 3',
+    inStock: 45,
+    deliveryTime: 'Pan-India 2-3 Days Express',
+    tags: ['Gaya Specialty', 'Winter Delicacy', 'Pure Gur Tilkut'],
+    isFeatured: true,
+    isBiharSpecial: true,
+    unitOrSizeOptions: ['1 Kg Premium Tin Box'],
+    description: 'The world-famous Tilkut of Ramna, Gaya! Pounded by hand to an ultra-thin, wafer-crisp texture that literally melts on your tongue. Prepared with white sesame seeds and desi khoya.',
+    highlights: [
+      'Pounded using traditional wooden pestles for feathery melt-in-mouth crispness',
+      'Made with unrefined indigenous Bihar sugarcane jaggery (no artificial sugar)',
+      'Vacuum-sealed in food-grade tin container to preserve crispness for up to 60 days',
+      'A must-have traditional gift for Makar Sankranti and family celebrations'
+    ]
+  },
+  {
+    id: 'prod-deli-06',
+    name: 'Authentic Maner Ka Laddoo (Gram Flour in Pure Desi Ghee & Dry Fruits 800g)',
+    category: 'delicacies',
+    categoryLabel: 'GI Heritage Sweets',
+    brand: 'Maner Sweet Crafts',
+    price: 490,
+    originalPrice: 680,
+    discountPercent: 27,
+    rating: 4.9,
+    reviewsCount: 460,
+    image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80',
+    storeOrigin: 'Taste of Bihar Pavilion',
+    floor: 'Floor 3',
+    inStock: 40,
+    deliveryTime: 'Pan-India 2-3 Days Express',
+    tags: ['Maner Sharif Heritage', '100% Desi Ghee', 'No Preservatives'],
+    isFeatured: true,
+    isBiharSpecial: true,
+    unitOrSizeOptions: ['800g Festive Pack'],
+    description: 'Celebrated across India for over a century, prepared in pure cow ghee and fragrant sugar syrup infused with saffron, cardamom, and crunchy melon seeds.',
+    highlights: [
+      'Tiny micro-boondi pearls cooked in pure aromatic cow ghee',
+      'Infused with Kashmiri saffron strands and green cardamom',
+      'Richly garnished with cashews, almonds, and pistachios',
+      'Freshly prepared daily at the Mall food pavilion'
+    ]
   }
 ];
 
@@ -1549,18 +2057,47 @@ export const PRIYA_ORDERS: CustomerOrder[] = [
   }
 ];
 
-export const PRESET_CUSTOMERS = [
-  {
-    user: DEFAULT_USER,
-    orders: INITIAL_ORDERS,
-    label: 'Ganesh Singh (+91 62044 12345)',
-    description: 'Platinum Tier • Lakhisarai'
-  },
-  {
-    user: PRIYA_USER,
-    orders: PRIYA_ORDERS,
-    label: 'Priya Sharma (+91 94312 88990)',
-    description: 'Gold Tier • Patna'
-  }
-];
+export interface OwnerSecurityVault {
+  fullName: string;
+  role: string;
+  phone: string;
+  email: string;
+  gstin: string;
+  panNumber: string;
+  aadhaarMasked: string;
+  emergencyContact: string;
+  officeLocation: string;
+  verifiedDocuments: Array<{ name: string; docNumber: string; status: string; date: string }>;
+  systemPrivileges: string[];
+}
+
+export const SECURE_OWNER_VAULT: OwnerSecurityVault = {
+  fullName: 'Ganesh Singh',
+  role: 'Founder & Managing Director, Smart Bazzar Lakhisarai',
+  phone: '+91 62044 12345',
+  email: 'ganeshsingh62044@gmail.com',
+  gstin: '10ABCDE1234F1Z5 (Bihar State Commercial Tax)',
+  panNumber: 'ABCPS1234F',
+  aadhaarMasked: 'XXXX-XXXX-8921',
+  emergencyContact: '+91 94312 00000',
+  officeLocation: 'Executive Suite 501, 5th Floor Administrative Wing, Smart Bazzar, NH-80 Main Road, Lakhisarai, Bihar 811311',
+  verifiedDocuments: [
+    { name: 'UIDAI Aadhaar Card', docNumber: 'XXXX-XXXX-8921', status: 'Biometrically Verified', date: '12 May 2012' },
+    { name: 'Income Tax PAN Card', docNumber: 'ABCPS1234F', status: 'Active Verified', date: '08 Mar 2008' },
+    { name: 'Commercial GSTIN Certificate', docNumber: '10ABCDE1234F1Z5', status: 'Active Regular', date: '01 Jul 2017' },
+    { name: 'Lakhisarai Municipal Trade License', docNumber: 'LKS-TL-2024-8819', status: 'Compliant & Active', date: '05 Jan 2024' }
+  ],
+  systemPrivileges: [
+    'Super Admin Access',
+    'Catalog & Product Management (Add/Edit/Delete)',
+    'Live Order Status Control',
+    'All Customer & Buyer Directory Access',
+    'Server Audit Logs & IP Tracking',
+    'Financial Settlement Oversight'
+  ]
+};
+
+// Guest preset accounts have been removed to secure personal details
+export const PRESET_CUSTOMERS: any[] = [];
+
 

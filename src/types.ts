@@ -12,7 +12,8 @@ export type ActiveTab =
   | 'facilities'
   | 'gallery'
   | 'contact'
-  | 'account';
+  | 'account'
+  | 'admin';
 
 export type AppMode = 'offline' | 'online';
 

@@ -71,12 +71,12 @@ export const KeyHighlights: React.FC<KeyHighlightsProps> = ({
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-slate-50 border-b border-slate-200">
+    <section className="py-16 sm:py-24 bg-transparent border-b border-slate-200/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-300">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-100/80 text-amber-800 text-xs font-bold uppercase tracking-wider border border-amber-300/80">
             Key Mall Highlights
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -92,7 +92,7 @@ export const KeyHighlights: React.FC<KeyHighlightsProps> = ({
           {highlights.map((item, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-amber-400/60 transition-all group flex flex-col justify-between"
+              className="bg-white/80 backdrop-blur-xs rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs hover:shadow-md hover:border-amber-400/60 transition-all group flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
