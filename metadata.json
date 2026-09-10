@@ -1,0 +1,6 @@
+{
+  "name": "Smart Bazzar - Lakhisarai",
+  "description": "Smart Bazzar is Lakhisarai's premier shopping, dining, and entertainment destination on NH-80 Road, Bihar, founded and owned by Ganesh Singh, featuring 5 floors of world-class retail, 4-screen Dolby Atmos multiplex, food court, and smart parking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
