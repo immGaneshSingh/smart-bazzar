@@ -237,7 +237,9 @@ export const AdminDashboard: React.FC = () => {
         showToast('Google Sign-In Verified: Welcome Super Admin Ganesh Singh');
         fetchAllAdminData();
       } else {
-        setGoogleAuthError(data.message || `Access Denied: Account "${targetEmail}" is not authorized. Access is strictly restricted to the Super Administrator.`);
+        const rawMsg = data.message || `Access Denied: Account "${targetEmail}" is not authorized. Access is strictly restricted to (Admin).`;
+        const sanitizedMsg = rawMsg.replace(/ganeshsingh62044@gmail\.com/gi, '(Admin)');
+        setGoogleAuthError(sanitizedMsg);
       }
     } catch {
       // Offline fallback with strict email validation
@@ -267,7 +269,7 @@ export const AdminDashboard: React.FC = () => {
         showToast('Google Sign-In Verified: Master Admin Unlocked');
         fetchAllAdminData();
       } else {
-        setGoogleAuthError(`Access Denied: Account "${targetEmail}" is not authorized. Access is strictly restricted to the Super Administrator.`);
+        setGoogleAuthError(`Access Denied: Account "${targetEmail}" is not authorized. Access is strictly restricted to (Admin).`);
       }
     } finally {
       setIsVerifyingGoogle(false);
@@ -578,7 +580,7 @@ export const AdminDashboard: React.FC = () => {
                   <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
                     <span className="font-bold text-red-300 block">Security Alert</span>
-                    <span className="text-[11px]">{googleAuthError}</span>
+                    <span className="text-[11px]">{googleAuthError.replace(/ganeshsingh62044@gmail\.com/gi, '(Admin)')}</span>
                   </div>
                 </div>
               )}
@@ -635,7 +637,7 @@ export const AdminDashboard: React.FC = () => {
                   <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                   <div className="space-y-0.5">
                     <span className="font-bold text-red-300 block">Access Denied</span>
-                    <span className="text-[11px] leading-relaxed block">{googleAuthError}</span>
+                    <span className="text-[11px] leading-relaxed block">{googleAuthError.replace(/ganeshsingh62044@gmail\.com/gi, '(Admin)')}</span>
                   </div>
                 </div>
               )}

@@ -479,7 +479,7 @@ app.post('/api/admin/google-verify', (req: Request, res: Response) => {
     return res.status(403).json({
       success: false,
       error: 'UNAUTHORIZED_ADMIN_EMAIL',
-      message: `Access Denied: Only ${authorizedEmail} has permission to open the Admin Portal. Account "${cleanEmail}" is not authorized.`
+      message: `Access Denied: Only (Admin) has permission to open the Admin Portal. Account "${cleanEmail}" is not authorized.`
     });
   }
 
@@ -514,7 +514,7 @@ app.post('/api/admin/google-verify', (req: Request, res: Response) => {
 app.post('/api/admin/verify', (req: Request, res: Response) => {
   res.json({
     success: true,
-    message: 'Please use Google Sign-In with ganeshsingh62044@gmail.com.',
+    message: 'Please use Google Sign-In with (Admin).',
     adminName: 'Ganesh Singh',
     role: 'Super Admin & Owner'
   });
