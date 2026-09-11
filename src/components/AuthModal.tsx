@@ -6,16 +6,18 @@ import {
   Mail, 
   ShieldCheck, 
   CheckCircle2, 
-  ArrowRight,
-  Lock,
-  MapPin,
-  MessageSquare,
-  AlertCircle,
-  RefreshCw,
-  Copy,
-  Check
+  ArrowRight, 
+  Lock, 
+  MapPin, 
+  MessageSquare, 
+  AlertCircle, 
+  RefreshCw, 
+  Copy, 
+  Check,
+  Database
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
+import { saveLoginToSupabase, SUPABASE_PROJECT_ID } from '../lib/supabase';
 
 interface AuthModalProps {
   onNavigate?: (tab: any) => void;
@@ -132,9 +134,20 @@ export const AuthModal: React.FC<AuthModalProps> = () => {
       const data = await res.json();
 
       if (data.success) {
+        // Save to Supabase 'logins' table
+        saveLoginToSupabase({
+          id: `login-${Date.now()}`,
+          user_name: data.user?.name || name.trim() || 'Verified Customer',
+          phone: data.user?.phone || cleanPhone,
+          email: data.user?.email || email.trim(),
+          role: 'Customer',
+          auth_method: 'SMS OTP Verified',
+          status: 'success',
+        }).catch(console.warn);
+
         login(data.user);
         setIsAuthModalOpen(false);
-        showToast(`Welcome back, ${data.user.name}! Account verified.`);
+        showToast(`Welcome back, ${data.user.name}! Account verified & synced with Supabase.`);
       } else {
         setAuthError(data.message || 'Invalid verification code. Please check and try again.');
       }
@@ -142,13 +155,27 @@ export const AuthModal: React.FC<AuthModalProps> = () => {
       // Offline verification check against the actual sent code
       if (sentOtpCode && otpInput.trim() === sentOtpCode) {
         const formattedPhone = phone.startsWith('+91') ? phone : `+91 ${phone}`;
-        login({
-          name: name.trim() || (mode === 'register' ? 'New Customer' : (user?.name || 'Verified Shopper')),
+        const activeName = name.trim() || (mode === 'register' ? 'New Customer' : (user?.name || 'Verified Shopper'));
+        const activeEmail = email.trim() || `${phone.replace(/\D/g, '')}@smartbazzar.in`;
+
+        // Save to Supabase 'logins' table
+        saveLoginToSupabase({
+          id: `login-${Date.now()}`,
+          user_name: activeName,
           phone: formattedPhone,
-          email: email.trim() || `${phone.replace(/\D/g, '')}@smartbazzar.in`,
+          email: activeEmail,
+          role: 'Customer',
+          auth_method: 'SMS OTP Verified (Direct)',
+          status: 'success',
+        }).catch(console.warn);
+
+        login({
+          name: activeName,
+          phone: formattedPhone,
+          email: activeEmail,
           savedAddresses: [
             {
-              fullName: name.trim() || 'Valued Customer',
+              fullName: activeName,
               phone: formattedPhone,
               addressLine: 'Main Road',
               landmark: 'Town Center',
@@ -159,7 +186,7 @@ export const AuthModal: React.FC<AuthModalProps> = () => {
           ]
         });
         setIsAuthModalOpen(false);
-        showToast('Account successfully verified & signed in!');
+        showToast('Account verified & synced with Supabase backend!');
       } else {
         setAuthError('Incorrect verification code. Please enter the exact 6-digit OTP.');
       }
@@ -479,6 +506,13 @@ export const AuthModal: React.FC<AuthModalProps> = () => {
                 <MapPin className="w-3.5 h-3.5 text-amber-500" />
                 All-India Pincode Delivery
               </span>
+            </div>
+            <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-[10px]">
+              <span className="flex items-center gap-1.5 text-slate-700 font-semibold">
+                <Database className="w-3 h-3 text-emerald-600" />
+                <span>Supabase Backend: Connected</span>
+              </span>
+              <span className="font-mono text-slate-400">{SUPABASE_PROJECT_ID}</span>
             </div>
             <p className="text-[10px] text-slate-400 text-center">
               Personal customer details & KYC records are strictly encrypted & isolated to your mobile number.

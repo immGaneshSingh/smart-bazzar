@@ -17,6 +17,13 @@ import {
   PRIYA_ORDERS,
   PRESET_CUSTOMERS 
 } from '../data/onlineShoppingData';
+import { 
+  saveBookingToSupabase, 
+  saveLoginToSupabase, 
+  saveDocumentToSupabase,
+  fetchDocumentsFromSupabase,
+  fetchBookingsFromSupabase
+} from '../lib/supabase';
 
 interface PlaceOrderParams {
   items: CartItem[];
@@ -86,6 +93,7 @@ interface ShopContextType {
   updateProduct: (product: OnlineProduct) => void;
   updateProductPrice: (productId: string, newPriceOrDelta: number, isDelta?: boolean) => void;
   updateOrderStatus: (orderId: string, status: CustomerOrder['status']) => void;
+  resetProductsToDefault: () => void;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -93,10 +101,22 @@ const ShopContext = createContext<ShopContextType | undefined>(undefined);
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<OnlineProduct[]>(() => {
     try {
+      const savedDeleted = localStorage.getItem('sb_deleted_product_ids');
+      const deletedIds: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+      const deletedSet = new Set(Array.isArray(deletedIds) ? deletedIds : []);
+
+      // First check if user has custom/updated products stored
       const saved = localStorage.getItem('sb_custom_products');
-      if (saved) {
+      if (saved !== null) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) {
+          return parsed.filter(p => !deletedSet.has(p.id));
+        }
+      }
+      
+      // Also check if any product IDs were specifically deleted from default list
+      if (deletedSet.size > 0) {
+        return ONLINE_PRODUCTS.filter(p => !deletedSet.has(p.id));
       }
     } catch {
       // fallback
@@ -381,6 +401,23 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // ignore network errors
     }
+
+    // Save order booking to Supabase 'bookings' table
+    saveBookingToSupabase({
+      id: newOrder.id,
+      booking_type: 'store_order',
+      customer_name: params.deliveryAddress.fullName || user?.name || 'Customer',
+      customer_phone: params.deliveryAddress.phone || user?.phone || '',
+      details: {
+        itemCount: params.items.length,
+        items: params.items.map(i => ({ name: i.product.name, quantity: i.quantity, price: i.product.price })),
+        deliveryMode: params.deliveryAddress.deliveryMode,
+        deliveryAddress: `${params.deliveryAddress.addressLine}, ${params.deliveryAddress.city} - ${params.deliveryAddress.pincode}`,
+        paymentMethod: params.paymentMethod,
+      },
+      amount: params.totalAmount,
+      status: params.paymentStatus === 'paid' ? 'confirmed' : 'pending'
+    }).catch(console.warn);
     
     if (user) {
       const cleanKey = (user.phone || user.id || '').replace(/\D/g, '');
@@ -483,6 +520,121 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // ignore
     }
 
+    // Save login to Supabase 'logins' table
+    saveLoginToSupabase({
+      id: `login-${Date.now()}`,
+      user_name: activeAccount.name,
+      phone: activeAccount.phone || '',
+      email: activeAccount.email || `${userKey}@smartbazzar.in`,
+      role: 'Customer',
+      auth_method: 'Session Login',
+      status: 'active'
+    }).catch(console.warn);
+
+    // Sync cloud KYC documents and orders from Supabase backend
+    if (activeAccount.phone) {
+      const phoneDigits = activeAccount.phone.replace(/\D/g, '');
+      fetchDocumentsFromSupabase(phoneDigits).then(cloudDocs => {
+        if (cloudDocs && cloudDocs.length > 0) {
+          setUser(prev => {
+            if (!prev) return null;
+            const existingIds = new Set((prev.documents || []).map(d => d.id));
+            const newDocs: UserDocument[] = cloudDocs
+              .filter(cd => !existingIds.has(cd.id))
+              .map(cd => ({
+                id: cd.id,
+                type: (cd.document_type as any) || 'aadhaar',
+                typeName: cd.type_name || 'Identity Document',
+                documentNumber: cd.document_number || 'NOT_PROVIDED',
+                fullName: cd.holder_name || cd.user_name || prev.name,
+                issueDate: cd.issue_date || '15 Jan 2022',
+                expiryDate: cd.expiry_date || 'Permanent',
+                status: (cd.status as any) || 'verified',
+                verifiedBy: cd.verified_by || 'Smart Bazzar KYC Security Cell',
+                notes: cd.notes || '',
+                uploadedAt: cd.uploaded_at || new Date().toISOString()
+              }));
+
+            if (newDocs.length > 0) {
+              const merged = { ...prev, documents: [...(prev.documents || []), ...newDocs] };
+              try {
+                localStorage.setItem('sb_active_customer', JSON.stringify(merged));
+                localStorage.setItem(`sb_cust_acct_${userKey}`, JSON.stringify(merged));
+              } catch {}
+              return merged;
+            }
+            return prev;
+          });
+        }
+      }).catch(console.warn);
+
+      // Query Supabase backend for any store orders placed by this phone
+      fetchBookingsFromSupabase().then(cloudBookings => {
+        if (cloudBookings && cloudBookings.length > 0) {
+          const userPhoneDigits = (activeAccount.phone || '').replace(/\D/g, '');
+          const matchingCloudOrders = cloudBookings.filter(b => 
+            b.booking_type === 'store_order' && 
+            b.customer_phone &&
+            b.customer_phone.replace(/\D/g, '').includes(userPhoneDigits)
+          );
+
+          if (matchingCloudOrders.length > 0) {
+            setOrders(prev => {
+              const existingIds = new Set(prev.map(o => o.id));
+              const newOrders: CustomerOrder[] = [];
+              for (const b of matchingCloudOrders) {
+                if (!existingIds.has(b.id)) {
+                  const details = b.details || {};
+                  const items = Array.isArray(details.items) ? details.items : [];
+                  newOrders.push({
+                    id: b.id,
+                    orderDate: b.created_at ? b.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
+                    items: items.map((it: any, idx: number) => ({
+                      productId: it.productId || `prod-sb-${idx}`,
+                      name: it.name || 'Store Item',
+                      price: it.price || Math.round(Number(b.amount) / Math.max(1, items.length)),
+                      quantity: it.quantity || 1,
+                      image: it.image || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80',
+                      storeOrigin: it.storeOrigin || 'Smart Bazzar Departmental Store',
+                      selectedOption: it.selectedOption
+                    })),
+                    subtotal: Number(b.amount) || 0,
+                    discount: 0,
+                    deliveryFee: 0,
+                    totalAmount: Number(b.amount) || 0,
+                    status: (b.status as any) || 'confirmed',
+                    paymentMethod: (details.paymentMethod as any) || 'upi',
+                    paymentStatus: 'paid',
+                    deliveryAddress: {
+                      fullName: b.customer_name || activeAccount.name,
+                      phone: b.customer_phone || activeAccount.phone || '',
+                      addressLine: details.deliveryAddress || 'Smart Bazzar Delivery',
+                      city: 'Lakhisarai',
+                      pincode: '811311',
+                      deliveryMode: (details.deliveryMode as any) || 'home-delivery'
+                    },
+                    estimatedDelivery: 'Dispatched via Express Logistics',
+                    trackingSteps: details.trackingSteps || [
+                      { title: 'Order Confirmed in Supabase Cloud', time: 'Verified', completed: true, current: true }
+                    ]
+                  });
+                }
+              }
+              if (newOrders.length > 0) {
+                const combined = [...prev, ...newOrders];
+                try {
+                  const cleanPhoneKey = (activeAccount.phone || activeAccount.id || '').replace(/\D/g, '');
+                  localStorage.setItem(`sb_cust_orders_${cleanPhoneKey}`, JSON.stringify(combined));
+                } catch {}
+                return combined;
+              }
+              return prev;
+            });
+          }
+        }
+      }).catch(console.warn);
+    }
+
     setIsAuthModalOpen(false);
     showToast(`Welcome ${activeAccount.name}! Opened your private account.`);
   };
@@ -518,14 +670,31 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Personal Document vault actions
   const addDocument = (doc: Omit<UserDocument, 'id' | 'uploadedAt'>) => {
     if (!user) return;
+    const newDocId = `doc-${Date.now()}`;
     const newDoc: UserDocument = {
       ...doc,
-      id: `doc-${Date.now()}`,
+      id: newDocId,
       uploadedAt: `Uploaded ${new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`
     };
 
     const nextDocs = [newDoc, ...(user.documents || [])];
     updateProfile({ documents: nextDocs });
+
+    // Sync document to Supabase 'documents' table
+    saveDocumentToSupabase({
+      id: newDocId,
+      user_phone: user.phone || '',
+      document_type: doc.type,
+      type_name: doc.typeName,
+      document_number: doc.documentNumber,
+      full_name: doc.fullName,
+      issue_date: doc.issueDate,
+      expiry_date: doc.expiryDate,
+      status: doc.status || 'verified',
+      verified_by: (doc as any).verifiedBy || 'Smart Bazzar KYC Security Cell',
+      notes: doc.notes || 'User uploaded document'
+    }).catch(console.warn);
+
     showToast(`Added "${doc.typeName}" to your document vault`);
   };
 
@@ -572,6 +741,18 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return updated;
     });
 
+    // Remove from deleted list if re-added
+    try {
+      const savedDeleted = localStorage.getItem('sb_deleted_product_ids');
+      if (savedDeleted) {
+        const deletedIds: string[] = JSON.parse(savedDeleted);
+        const filtered = deletedIds.filter(id => id !== newProd.id);
+        localStorage.setItem('sb_deleted_product_ids', JSON.stringify(filtered));
+      }
+    } catch {
+      // ignore
+    }
+
     // Synchronize to backend server
     try {
       fetch('/api/products', {
@@ -587,10 +768,19 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteProduct = (productId: string) => {
+    let deletedProdName = '';
     setProducts(prev => {
+      const target = prev.find(p => p.id === productId);
+      if (target) deletedProdName = target.name;
       const updated = prev.filter(p => p.id !== productId);
       try {
         localStorage.setItem('sb_custom_products', JSON.stringify(updated));
+        const savedDeleted = localStorage.getItem('sb_deleted_product_ids');
+        const deletedIds: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+        if (!deletedIds.includes(productId)) {
+          deletedIds.push(productId);
+          localStorage.setItem('sb_deleted_product_ids', JSON.stringify(deletedIds));
+        }
       } catch {
         // ignore
       }
@@ -606,7 +796,18 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // ignore
     }
 
-    showToast('Product removed from store catalog');
+    showToast(deletedProdName ? `"${deletedProdName}" removed from catalog` : 'Product removed from store catalog');
+  };
+
+  const resetProductsToDefault = () => {
+    try {
+      localStorage.removeItem('sb_custom_products');
+      localStorage.removeItem('sb_deleted_product_ids');
+    } catch {
+      // ignore
+    }
+    setProducts(ONLINE_PRODUCTS);
+    showToast('Catalog restored to default products');
   };
 
   const updateProduct = (updatedProd: OnlineProduct) => {
@@ -755,6 +956,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProduct,
         updateProductPrice,
         updateOrderStatus,
+        resetProductsToDefault,
         setIsCartOpen,
         setIsAuthModalOpen,
         setIsCheckoutOpen,

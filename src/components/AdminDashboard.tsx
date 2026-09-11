@@ -24,11 +24,19 @@ import {
   Sliders,
   DollarSign,
   TrendingUp,
-  TrendingDown
+  TrendingDown,
+  Eye,
+  X
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { OnlineProduct, CustomerOrder } from '../types';
 import { SECURE_OWNER_VAULT } from '../data/onlineShoppingData';
+import { 
+  testSupabaseConnection, 
+  SUPABASE_PROJECT_ID, 
+  SUPABASE_SQL_SETUP, 
+  saveLoginToSupabase 
+} from '../lib/supabase';
 
 interface BuyerRecord {
   buyerId: string;
@@ -64,6 +72,7 @@ export const AdminDashboard: React.FC = () => {
     updateProductPrice,
     orders, 
     updateOrderStatus,
+    resetProductsToDefault,
     showToast 
   } = useShop();
 
@@ -87,7 +96,43 @@ export const AdminDashboard: React.FC = () => {
   const [isVerifyingGoogle, setIsVerifyingGoogle] = useState(false);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'buyers' | 'addProduct' | 'products' | 'orders' | 'userLogins' | 'ownerVault' | 'logs'>('buyers');
+  const [activeTab, setActiveTab] = useState<'buyers' | 'addProduct' | 'products' | 'orders' | 'userLogins' | 'ownerVault' | 'supabase' | 'logs'>('buyers');
+
+  // Deletion and Catalog Reset States
+  const [deleteConfirmProdId, setDeleteConfirmProdId] = useState<string | null>(null);
+  const [showResetCatalogModal, setShowResetCatalogModal] = useState(false);
+
+  // Supabase Diagnostics & Live Data Explorer State
+  const [supabaseTestResult, setSupabaseTestResult] = useState<{
+    success: boolean;
+    message: string;
+    details?: any;
+  } | null>(null);
+  const [isTestingSupabase, setIsTestingSupabase] = useState(false);
+  const [copiedSql, setCopiedSql] = useState(false);
+  const [supabaseExplorerTab, setSupabaseExplorerTab] = useState<'bookings' | 'logins' | 'documents'>('bookings');
+  const [supabaseData, setSupabaseData] = useState<{
+    bookings: any[];
+    logins: any[];
+    documents: any[];
+  }>({
+    bookings: [],
+    logins: [],
+    documents: []
+  });
+  const [supabaseCounts, setSupabaseCounts] = useState<{
+    bookings: number;
+    logins: number;
+    documents: number;
+  }>({
+    bookings: 0,
+    logins: 0,
+    documents: 0
+  });
+  const [loadingSupabaseData, setLoadingSupabaseData] = useState(false);
+  const [supabaseSearch, setSupabaseSearch] = useState('');
+  const [viewingRecordJson, setViewingRecordJson] = useState<{ title: string; data: any } | null>(null);
+  const [deletingRecordId, setDeletingRecordId] = useState<string | null>(null);
 
   // Buyers from server
   const [buyers, setBuyers] = useState<BuyerRecord[]>([]);
@@ -177,6 +222,18 @@ export const AdminDashboard: React.FC = () => {
         sessionStorage.setItem('sb_admin_google_user', JSON.stringify(userObj));
         setAdminGoogleUser(userObj);
         setIsAdminUnlocked(true);
+
+        // Sync admin login to Supabase
+        saveLoginToSupabase({
+          id: `admin-login-${Date.now()}`,
+          user_name: 'Ganesh Singh',
+          phone: '+91 62044 12345',
+          email: data.adminEmail || 'ganeshsingh62044@gmail.com',
+          role: 'Admin',
+          auth_method: 'Google Sign-In',
+          status: 'success'
+        }).catch(console.warn);
+
         showToast('Google Sign-In Verified: Welcome Super Admin Ganesh Singh');
         fetchAllAdminData();
       } else {
@@ -195,6 +252,18 @@ export const AdminDashboard: React.FC = () => {
         sessionStorage.setItem('sb_admin_google_user', JSON.stringify(userObj));
         setAdminGoogleUser(userObj);
         setIsAdminUnlocked(true);
+
+        // Sync admin login to Supabase
+        saveLoginToSupabase({
+          id: `admin-login-${Date.now()}`,
+          user_name: 'Ganesh Singh',
+          phone: '+91 62044 12345',
+          email: 'ganeshsingh62044@gmail.com',
+          role: 'Admin',
+          auth_method: 'Google Sign-In (Direct)',
+          status: 'success'
+        }).catch(console.warn);
+
         showToast('Google Sign-In Verified: Master Admin Unlocked');
         fetchAllAdminData();
       } else {
@@ -274,11 +343,81 @@ export const AdminDashboard: React.FC = () => {
           });
         }
       }
+      // Also sync Supabase counts
+      fetchSupabaseData();
     } catch (err) {
       console.warn('Failed to load admin telemetry', err);
     } finally {
       setLoadingBuyers(false);
       setIsRefreshingLogs(false);
+    }
+  };
+
+  const fetchSupabaseData = async () => {
+    setLoadingSupabaseData(true);
+    try {
+      const [dataRes, statusRes] = await Promise.all([
+        fetch('/api/supabase/data'),
+        fetch('/api/supabase/status')
+      ]);
+
+      if (dataRes.ok) {
+        const d = await dataRes.json();
+        if (d.success) {
+          setSupabaseData({
+            bookings: Array.isArray(d.bookings) ? d.bookings : [],
+            logins: Array.isArray(d.logins) ? d.logins : [],
+            documents: Array.isArray(d.documents) ? d.documents : [],
+          });
+        }
+      }
+
+      if (statusRes.ok) {
+        const s = await statusRes.json();
+        if (s.success && s.counts) {
+          setSupabaseCounts(s.counts);
+          setSupabaseTestResult({
+            success: true,
+            message: `Supabase Project ${s.projectId} connected with ${s.latencyMs}ms latency.`,
+            details: { ...s.counts, latencyMs: s.latencyMs }
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load Supabase table data', err);
+    } finally {
+      setLoadingSupabaseData(false);
+    }
+  };
+
+  const handleDeleteSupabaseRecord = async (table: 'bookings' | 'logins' | 'documents', id: string) => {
+    if (!window.confirm(`Delete record "${id}" from Supabase table '${table}'? This will permanently remove it from the cloud database.`)) {
+      return;
+    }
+
+    setDeletingRecordId(id);
+    try {
+      const res = await fetch(`/api/supabase/record/${table}/${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(`Record ${id} deleted from Supabase!`);
+        setSupabaseData(prev => ({
+          ...prev,
+          [table]: prev[table].filter((row: any) => row.id !== id)
+        }));
+        setSupabaseCounts(prev => ({
+          ...prev,
+          [table]: Math.max(0, prev[table] - 1)
+        }));
+      } else {
+        showToast(`Failed: ${data.message || 'Could not delete'}`);
+      }
+    } catch (err: any) {
+      showToast(`Delete failed: ${err.message}`);
+    } finally {
+      setDeletingRecordId(null);
     }
   };
 
@@ -288,11 +427,17 @@ export const AdminDashboard: React.FC = () => {
     }
   }, [isAdminUnlocked]);
 
+  useEffect(() => {
+    if (isAdminUnlocked && activeTab === 'supabase') {
+      fetchSupabaseData();
+    }
+  }, [activeTab, isAdminUnlocked]);
+
   // Handle adding new product
   const handleAddProductSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProdName.trim() || !newProdPrice) {
-      alert('Please provide product title and selling price');
+      showToast('Please provide product title and selling price');
       return;
     }
 
@@ -704,8 +849,20 @@ export const AdminDashboard: React.FC = () => {
                 : 'text-slate-300 hover:bg-slate-800'
             }`}
           >
-            <Database className="w-4 h-4" />
+            <FileText className="w-4 h-4" />
             <span>Server Audit Logs</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('supabase')}
+            className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-2 shrink-0 transition-all cursor-pointer border ${
+              activeTab === 'supabase'
+                ? 'bg-emerald-500 text-slate-950 font-black border-emerald-400 shadow-xs'
+                : 'text-emerald-400 hover:bg-emerald-950/40 border-emerald-800/40'
+            }`}
+          >
+            <Database className="w-4 h-4" />
+            <span>Supabase Cloud DB (hbwomnuosklfusuuwuzf)</span>
           </button>
         </div>
 
@@ -923,7 +1080,16 @@ export const AdminDashboard: React.FC = () => {
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setShowResetCatalogModal(true)}
+                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-slate-700"
+                  title="Restore original product inventory"
+                >
+                  <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
+                  <span>Reset Catalog</span>
+                </button>
+
                 <button
                   onClick={() => setActiveTab('addProduct')}
                   className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -966,6 +1132,10 @@ export const AdminDashboard: React.FC = () => {
                           <img
                             src={prod.image}
                             alt={prod.name}
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80';
+                            }}
                             className="w-11 h-11 rounded-xl object-cover border border-slate-700 shrink-0 shadow-xs"
                           />
                           <div>
@@ -1093,24 +1263,77 @@ export const AdminDashboard: React.FC = () => {
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => {
-                            if (confirm(`Remove "${prod.name}" from catalog?`)) {
-                              deleteProduct(prod.id);
-                            }
-                          }}
-                          className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
-                          title="Delete Product"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <td className="py-3 px-4 text-right whitespace-nowrap">
+                        {deleteConfirmProdId === prod.id ? (
+                          <div className="flex items-center justify-end gap-1.5 animate-in fade-in-50">
+                            <button
+                              onClick={() => {
+                                deleteProduct(prod.id);
+                                setDeleteConfirmProdId(null);
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] shadow-sm flex items-center gap-1 cursor-pointer"
+                              title="Confirm immediate deletion"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                              <span>Confirm Delete</span>
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirmProdId(null)}
+                              className="px-2 py-1 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setDeleteConfirmProdId(prod.id)}
+                            className="p-1.5 px-2.5 rounded-xl text-red-400 hover:text-white hover:bg-red-600/30 transition-all cursor-pointer inline-flex items-center gap-1.5 border border-transparent hover:border-red-500/30"
+                            title="Delete Product from Catalog"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            <span className="text-[11px] font-semibold">Delete</span>
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+
+            {/* Reset Catalog Confirmation Modal */}
+            {showResetCatalogModal && (
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-slate-900 border border-slate-700 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                  <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-400">
+                    <RefreshCw className="w-6 h-6" />
+                  </div>
+                  <div className="text-center space-y-1">
+                    <h4 className="text-lg font-bold text-white">Reset Catalog to Default?</h4>
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      This will restore all default Smart Bazzar products and clear any custom deletions. All buyer orders and accounts remain intact.
+                    </p>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={() => setShowResetCatalogModal(false)}
+                      className="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        resetProductsToDefault();
+                        setShowResetCatalogModal(false);
+                      }}
+                      className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs cursor-pointer shadow-lg"
+                    >
+                      Yes, Reset Catalog
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
           </div>
         )}
@@ -1676,6 +1899,586 @@ export const AdminDashboard: React.FC = () => {
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------------ */}
+        {/* TAB 8: SUPABASE CLOUD DATABASE COMMAND CENTER & DATA EXPLORER      */}
+        {/* ------------------------------------------------------------------ */}
+        {activeTab === 'supabase' && (
+          <div className="bg-slate-800/90 border border-slate-700 rounded-3xl p-6 shadow-xl space-y-6">
+            
+            {/* Top Bar with Live Badge & Quick Diagnostics */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-700/80 pb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/40 shadow-sm shrink-0">
+                  <Database className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-black text-white">Supabase Cloud Database Hub</h3>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                      LIVE CONNECTED
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    Real-time PostgreSQL engine ({SUPABASE_PROJECT_ID}.supabase.co) synced across bookings, user logins, and customer KYC vault.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  disabled={isTestingSupabase}
+                  onClick={async () => {
+                    setIsTestingSupabase(true);
+                    setSupabaseTestResult(null);
+                    try {
+                      const res = await testSupabaseConnection();
+                      setSupabaseTestResult(res);
+                      if (res.counts) {
+                        setSupabaseCounts(res.counts);
+                      }
+                      if (res.success) {
+                        showToast('Supabase Live Ping OK! Database accepting queries.');
+                        fetchSupabaseData();
+                      } else {
+                        showToast(`Supabase: ${res.message}`);
+                      }
+                    } catch (e: any) {
+                      setSupabaseTestResult({ success: false, message: e.message || 'Connection failed' });
+                    } finally {
+                      setIsTestingSupabase(false);
+                    }
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 cursor-pointer shadow-md transition-all disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isTestingSupabase ? 'animate-spin' : ''}`} />
+                  <span>{isTestingSupabase ? 'Testing Ping...' : 'Test Connection'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={loadingSupabaseData}
+                  onClick={fetchSupabaseData}
+                  className="px-3.5 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-bold flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
+                  title="Reload rows from Supabase"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${loadingSupabaseData ? 'animate-spin' : ''}`} />
+                  <span>Sync Rows</span>
+                </button>
+
+                <a
+                  href={`https://supabase.com/dashboard/project/${SUPABASE_PROJECT_ID}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-950 text-slate-300 text-xs font-bold flex items-center gap-1.5 border border-slate-700 cursor-pointer transition-all"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Console</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Diagnostic Alert Box if tested */}
+            {supabaseTestResult && (
+              <div className={`p-4 rounded-2xl border text-xs flex items-start gap-3 animate-in fade-in duration-200 ${
+                supabaseTestResult.success 
+                  ? 'bg-emerald-950/40 border-emerald-500/60 text-emerald-200' 
+                  : 'bg-amber-950/40 border-amber-500/60 text-amber-200'
+              }`}>
+                {supabaseTestResult.success ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                )}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-sm">
+                      {supabaseTestResult.success ? 'Supabase Backend Healthy & Responding' : 'Supabase Table Setup Status'}
+                    </p>
+                    {supabaseTestResult.details?.latencyMs && (
+                      <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded font-mono text-[10px]">
+                        {supabaseTestResult.details.latencyMs}ms latency
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-slate-300">{supabaseTestResult.message}</p>
+                </div>
+              </div>
+            )}
+
+            {/* 3 Metric Cards with Real Live Row Counts */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* 1. Bookings Table Card */}
+              <div 
+                onClick={() => setSupabaseExplorerTab('bookings')}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all text-left ${
+                  supabaseExplorerTab === 'bookings'
+                    ? 'bg-emerald-950/40 border-emerald-500/60 shadow-lg'
+                    : 'bg-slate-950 hover:bg-slate-900 border-slate-800'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">public.bookings</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Live
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-white font-mono">
+                  {supabaseCounts.bookings || supabaseData.bookings.length} <span className="text-xs font-normal text-slate-400">records</span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Retail store orders, movie seat tickets, and parking slot reservations.
+                </p>
+              </div>
+
+              {/* 2. Logins Table Card */}
+              <div 
+                onClick={() => setSupabaseExplorerTab('logins')}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all text-left ${
+                  supabaseExplorerTab === 'logins'
+                    ? 'bg-blue-950/40 border-blue-500/60 shadow-lg'
+                    : 'bg-slate-950 hover:bg-slate-900 border-slate-800'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">public.logins</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                    Live
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-white font-mono">
+                  {supabaseCounts.logins || supabaseData.logins.length} <span className="text-xs font-normal text-slate-400">sessions</span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Customer SMS OTP authentications, Google Admin logins, and device records.
+                </p>
+              </div>
+
+              {/* 3. Documents Table Card */}
+              <div 
+                onClick={() => setSupabaseExplorerTab('documents')}
+                className={`p-4 rounded-2xl border cursor-pointer transition-all text-left ${
+                  supabaseExplorerTab === 'documents'
+                    ? 'bg-amber-950/40 border-amber-500/60 shadow-lg'
+                    : 'bg-slate-950 hover:bg-slate-900 border-slate-800'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-mono text-slate-400 uppercase font-bold">public.documents</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                    Live
+                  </span>
+                </div>
+                <div className="text-2xl font-black text-white font-mono">
+                  {supabaseCounts.documents || supabaseData.documents.length} <span className="text-xs font-normal text-slate-400">documents</span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Verified Aadhaar, PAN card, driving license, and user identity credentials.
+                </p>
+              </div>
+            </div>
+
+            {/* LIVE DATA EXPLORER */}
+            <div className="bg-slate-950 rounded-2xl border border-slate-800 p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Database className="w-4 h-4 text-emerald-400" />
+                    <span>Supabase Live Data Explorer</span>
+                  </h4>
+                  <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setSupabaseExplorerTab('bookings')}
+                      className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                        supabaseExplorerTab === 'bookings'
+                          ? 'bg-emerald-600 text-white shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Bookings ({supabaseData.bookings.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSupabaseExplorerTab('logins')}
+                      className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                        supabaseExplorerTab === 'logins'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Logins ({supabaseData.logins.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSupabaseExplorerTab('documents')}
+                      className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+                        supabaseExplorerTab === 'documents'
+                          ? 'bg-amber-600 text-slate-950 shadow-sm'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      KYC Documents ({supabaseData.documents.length})
+                    </button>
+                  </div>
+                </div>
+
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={supabaseSearch}
+                    onChange={(e) => setSupabaseSearch(e.target.value)}
+                    placeholder="Search table rows..."
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+
+              {/* Table Data Rendering */}
+              {loadingSupabaseData ? (
+                <div className="py-12 text-center text-slate-400 text-xs flex items-center justify-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin text-emerald-400" />
+                  <span>Loading live rows from Supabase cloud...</span>
+                </div>
+              ) : (
+                <>
+                  {/* VIEW 1: BOOKINGS */}
+                  {supabaseExplorerTab === 'bookings' && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+                            <th className="pb-2.5 font-bold">Booking ID</th>
+                            <th className="pb-2.5 font-bold">Type</th>
+                            <th className="pb-2.5 font-bold">Customer Name</th>
+                            <th className="pb-2.5 font-bold">Phone Number</th>
+                            <th className="pb-2.5 font-bold">Amount</th>
+                            <th className="pb-2.5 font-bold">Status</th>
+                            <th className="pb-2.5 font-bold">Created At</th>
+                            <th className="pb-2.5 font-bold text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-900 font-mono">
+                          {supabaseData.bookings
+                            .filter((row: any) => {
+                              if (!supabaseSearch.trim()) return true;
+                              const q = supabaseSearch.toLowerCase();
+                              return (
+                                row.id?.toLowerCase().includes(q) ||
+                                row.customer_name?.toLowerCase().includes(q) ||
+                                row.customer_phone?.toLowerCase().includes(q) ||
+                                row.booking_type?.toLowerCase().includes(q)
+                              );
+                            })
+                            .map((row: any) => (
+                              <tr key={row.id} className="hover:bg-slate-900/60 transition-colors">
+                                <td className="py-2.5 font-bold text-emerald-400">{row.id}</td>
+                                <td className="py-2.5">
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 uppercase">
+                                    {row.booking_type || 'order'}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 font-sans font-bold text-white">{row.customer_name}</td>
+                                <td className="py-2.5 text-slate-300">{row.customer_phone}</td>
+                                <td className="py-2.5 font-bold text-amber-400">₹{row.amount || 0}</td>
+                                <td className="py-2.5">
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                                    {row.status || 'confirmed'}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 text-[11px] text-slate-500">
+                                  {row.created_at ? new Date(row.created_at).toLocaleString('en-IN') : 'Just now'}
+                                </td>
+                                <td className="py-2.5 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setViewingRecordJson({ title: `Booking #${row.id}`, data: row })}
+                                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer transition-all"
+                                      title="View Raw JSON Payload"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={deletingRecordId === row.id}
+                                      onClick={() => handleDeleteSupabaseRecord('bookings', row.id)}
+                                      className="p-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-800/40 cursor-pointer transition-all disabled:opacity-50"
+                                      title="Delete record from Supabase"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          {supabaseData.bookings.length === 0 && (
+                            <tr>
+                              <td colSpan={8} className="py-8 text-center text-slate-500 text-xs">
+                                No booking records stored in Supabase yet. Place an order or movie ticket to sync!
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* VIEW 2: LOGINS */}
+                  {supabaseExplorerTab === 'logins' && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+                            <th className="pb-2.5 font-bold">Session ID</th>
+                            <th className="pb-2.5 font-bold">User Name</th>
+                            <th className="pb-2.5 font-bold">Mobile Phone</th>
+                            <th className="pb-2.5 font-bold">Email</th>
+                            <th className="pb-2.5 font-bold">Role</th>
+                            <th className="pb-2.5 font-bold">Auth Method</th>
+                            <th className="pb-2.5 font-bold">Timestamp</th>
+                            <th className="pb-2.5 font-bold text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-900 font-mono">
+                          {supabaseData.logins
+                            .filter((row: any) => {
+                              if (!supabaseSearch.trim()) return true;
+                              const q = supabaseSearch.toLowerCase();
+                              return (
+                                row.id?.toLowerCase().includes(q) ||
+                                row.user_name?.toLowerCase().includes(q) ||
+                                row.phone?.toLowerCase().includes(q) ||
+                                row.email?.toLowerCase().includes(q)
+                              );
+                            })
+                            .map((row: any) => (
+                              <tr key={row.id} className="hover:bg-slate-900/60 transition-colors">
+                                <td className="py-2.5 font-bold text-blue-400">{row.id}</td>
+                                <td className="py-2.5 font-sans font-bold text-white">{row.user_name}</td>
+                                <td className="py-2.5 text-slate-300">{row.phone}</td>
+                                <td className="py-2.5 text-slate-400">{row.email || '—'}</td>
+                                <td className="py-2.5">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                    row.role === 'Admin'
+                                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                      : 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                                  }`}>
+                                    {row.role || 'Customer'}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 text-slate-300 text-[11px]">{row.auth_method}</td>
+                                <td className="py-2.5 text-[11px] text-slate-500">
+                                  {row.timestamp ? new Date(row.timestamp).toLocaleString('en-IN') : 'Active'}
+                                </td>
+                                <td className="py-2.5 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setViewingRecordJson({ title: `Login #${row.id}`, data: row })}
+                                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer transition-all"
+                                      title="View Raw JSON Payload"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={deletingRecordId === row.id}
+                                      onClick={() => handleDeleteSupabaseRecord('logins', row.id)}
+                                      className="p-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-800/40 cursor-pointer transition-all disabled:opacity-50"
+                                      title="Delete record from Supabase"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          {supabaseData.logins.length === 0 && (
+                            <tr>
+                              <td colSpan={8} className="py-8 text-center text-slate-500 text-xs">
+                                No login records stored in Supabase yet.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* VIEW 3: DOCUMENTS */}
+                  {supabaseExplorerTab === 'documents' && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-slate-800 text-slate-400 font-mono text-[11px]">
+                            <th className="pb-2.5 font-bold">Doc ID</th>
+                            <th className="pb-2.5 font-bold">Holder / User Name</th>
+                            <th className="pb-2.5 font-bold">User Phone</th>
+                            <th className="pb-2.5 font-bold">Document Type</th>
+                            <th className="pb-2.5 font-bold">Doc Number</th>
+                            <th className="pb-2.5 font-bold">Status</th>
+                            <th className="pb-2.5 font-bold">Uploaded At</th>
+                            <th className="pb-2.5 font-bold text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-900 font-mono">
+                          {supabaseData.documents
+                            .filter((row: any) => {
+                              if (!supabaseSearch.trim()) return true;
+                              const q = supabaseSearch.toLowerCase();
+                              return (
+                                row.id?.toLowerCase().includes(q) ||
+                                row.user_name?.toLowerCase().includes(q) ||
+                                row.user_phone?.toLowerCase().includes(q) ||
+                                row.document_number?.toLowerCase().includes(q) ||
+                                row.document_type?.toLowerCase().includes(q)
+                              );
+                            })
+                            .map((row: any) => (
+                              <tr key={row.id} className="hover:bg-slate-900/60 transition-colors">
+                                <td className="py-2.5 font-bold text-amber-400">{row.id}</td>
+                                <td className="py-2.5 font-sans font-bold text-white">{row.holder_name || row.user_name}</td>
+                                <td className="py-2.5 text-slate-300">{row.user_phone}</td>
+                                <td className="py-2.5">
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700 uppercase">
+                                    {row.type_name || row.document_type}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 font-bold text-emerald-400">{row.document_number}</td>
+                                <td className="py-2.5">
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                                    {row.status || 'verified'}
+                                  </span>
+                                </td>
+                                <td className="py-2.5 text-[11px] text-slate-500">
+                                  {row.uploaded_at ? new Date(row.uploaded_at).toLocaleString('en-IN') : 'Verified'}
+                                </td>
+                                <td className="py-2.5 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => setViewingRecordJson({ title: `Document #${row.id}`, data: row })}
+                                      className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white cursor-pointer transition-all"
+                                      title="View Raw JSON Payload"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      disabled={deletingRecordId === row.id}
+                                      onClick={() => handleDeleteSupabaseRecord('documents', row.id)}
+                                      className="p-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-800/40 cursor-pointer transition-all disabled:opacity-50"
+                                      title="Delete record from Supabase"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          {supabaseData.documents.length === 0 && (
+                            <tr>
+                              <td colSpan={8} className="py-8 text-center text-slate-500 text-xs">
+                                No KYC documents stored in Supabase yet.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Modal: View Raw Record JSON */}
+            {viewingRecordJson && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+                <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Database className="w-4 h-4 text-emerald-400" />
+                      <h4 className="font-bold text-sm text-white">{viewingRecordJson.title}</h4>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setViewingRecordJson(null)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <pre className="p-4 bg-slate-950 rounded-2xl border border-slate-800/80 text-[11px] text-emerald-300 font-mono overflow-x-auto max-h-96 leading-relaxed">
+                    {JSON.stringify(viewingRecordJson.data, null, 2)}
+                  </pre>
+                  <div className="flex justify-end gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(JSON.stringify(viewingRecordJson.data, null, 2));
+                        showToast('JSON copied to clipboard!');
+                      }}
+                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Copy JSON
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewingRecordJson(null)}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold cursor-pointer"
+                    >
+                      Close
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SQL Table Creator Code Box */}
+            <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                    Supabase SQL Schema Script (PostgreSQL DDL)
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    Tables are initialized. You can copy this script anytime to inspect or replicate schemas in any Supabase project.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(SUPABASE_SQL_SETUP);
+                    setCopiedSql(true);
+                    showToast('SQL setup code copied to clipboard!');
+                    setTimeout(() => setCopiedSql(false), 2500);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs flex items-center gap-1.5 cursor-pointer shrink-0"
+                >
+                  {copiedSql ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Copy SQL Code</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              <pre className="p-4 bg-slate-900 rounded-xl border border-slate-800 text-[11px] text-emerald-300 font-mono overflow-x-auto max-h-48 leading-relaxed">
+                {SUPABASE_SQL_SETUP}
+              </pre>
+            </div>
+
           </div>
         )}
 

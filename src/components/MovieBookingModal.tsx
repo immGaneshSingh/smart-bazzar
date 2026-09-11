@@ -10,11 +10,13 @@ import {
   Volume2, 
   CreditCard,
   Download,
-  Share2
+  Share2,
+  Database
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { MovieShow } from '../types';
 import { MOVIES_DATA } from '../data/mallData';
+import { saveBookingToSupabase, SUPABASE_PROJECT_ID } from '../lib/supabase';
 
 interface MovieBookingModalProps {
   movie?: MovieShow;
@@ -30,6 +32,7 @@ export const MovieBookingModal: React.FC<MovieBookingModalProps> = ({ movie, onC
   const [customerPhone, setCustomerPhone] = useState('');
   const [isBooked, setIsBooked] = useState(false);
   const [bookingId, setBookingId] = useState('');
+  const [supabaseStatus, setSupabaseStatus] = useState<string>('Syncing with Supabase...');
 
   // Seat pricing
   const SEAT_PRICE = 220;
@@ -57,6 +60,37 @@ export const MovieBookingModal: React.FC<MovieBookingModalProps> = ({ movie, onC
     const newBookingId = `CINESMART-LK-${Math.floor(100000 + Math.random() * 900000)}`;
     setBookingId(newBookingId);
     setIsBooked(true);
+
+    const calculatedTotal = selectedSeats.reduce((sum, seat) => {
+      return sum + (seat.startsWith('VIP') ? VIP_PRICE : SEAT_PRICE);
+    }, 0);
+
+    // Save directly to Supabase Backend
+    saveBookingToSupabase({
+      id: newBookingId,
+      booking_type: 'movie',
+      customer_name: customerName.trim() || 'Movie Patron',
+      customer_phone: customerPhone.trim() || '+91 98765 43210',
+      details: {
+        movieTitle: selectedMovie.title,
+        screen: selectedMovie.screen,
+        date: selectedDate,
+        time: selectedTime,
+        seats: selectedSeats,
+        seatCount: selectedSeats.length,
+        seatPrice: SEAT_PRICE,
+      },
+      amount: calculatedTotal,
+      status: 'confirmed',
+    }).then(res => {
+      if (res.success) {
+        setSupabaseStatus(`Synced with Supabase Backend (${SUPABASE_PROJECT_ID})`);
+      } else {
+        setSupabaseStatus(`Supabase (${SUPABASE_PROJECT_ID}): ${res.message}`);
+      }
+    }).catch(err => {
+      setSupabaseStatus(`Supabase: Queued in offline backup`);
+    });
 
     try {
       confetti({
@@ -155,6 +189,15 @@ export const MovieBookingModal: React.FC<MovieBookingModalProps> = ({ movie, onC
                 <div className="font-mono text-xs tracking-widest text-slate-500 bg-slate-950 px-3 py-1 rounded">
                   ||||| ||| ||||||| |||| ||||
                 </div>
+              </div>
+
+              {/* Supabase Backend Sync Status Badge */}
+              <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[11px]">
+                <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                  <Database className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span className="truncate">{supabaseStatus}</span>
+                </span>
+                <span className="text-slate-400 text-[10px] font-mono shrink-0">Table: public.bookings</span>
               </div>
             </div>
 

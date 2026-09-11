@@ -38,6 +38,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 : "https://images.unsplash.com/photo-1567449303078-57ad995bd301?auto=format&fit=crop&w=1920&q=80"
             }
             alt={appMode === 'online' ? "Smart Bazzar Online Shopping" : "Smart Bazzar NH-80"}
+            referrerPolicy="no-referrer"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1567449303078-57ad995bd301?auto=format&fit=crop&w=1920&q=80';
+            }}
             className="w-full h-full object-cover object-center opacity-25"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-transparent" />

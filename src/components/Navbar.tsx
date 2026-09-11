@@ -100,18 +100,18 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-900/80 backdrop-blur-md shadow-md border-b border-white/10 relative overflow-hidden transition-all text-slate-100">
+    <header className="sticky top-0 z-40 bg-white/70 backdrop-blur-xl shadow-xs border-b border-white/60 relative overflow-hidden transition-all text-slate-800 bg-gradient-to-r from-white/90 via-rose-50/40 to-purple-50/50">
       
       {/* Subdued Watermark Typography Layer */}
-      <div className="absolute inset-0 pointer-events-none select-none opacity-[0.035] flex items-center justify-between font-black text-2xl sm:text-4xl tracking-widest text-white uppercase whitespace-nowrap z-0 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none select-none opacity-[0.035] flex items-center justify-between font-black text-2xl sm:text-4xl tracking-widest text-slate-900 uppercase whitespace-nowrap z-0 overflow-hidden">
         <span>SMART BAZZAR</span>
         <span>LAKHISARAI</span>
         <span>EST 2024</span>
         <span>SMART BAZZAR</span>
       </div>
 
-      {/* 1. TOP DIVISION BAR: Minimized Slim Height */}
-      <div className="relative z-10 bg-black/35 text-slate-200 text-[10px] py-0.5 px-3 sm:px-6 border-b border-white/5">
+      {/* 1. TOP DIVISION BAR: Minimized Slim Height in Light Glass */}
+      <div className="relative z-10 bg-slate-100/60 backdrop-blur-md text-slate-600 text-[10px] py-1 px-3 sm:px-6 border-b border-slate-200/50">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-1.5">
           
           {/* Left: Mode Selection Indicator & Compact Switch Button */}
@@ -121,7 +121,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Selected: Offline Mall (Red) */}
                 <div 
                   id="mode-indicator-offline"
-                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-red-600 text-white font-bold tracking-wide shadow-xs border border-red-400/80 text-[10px]"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-600 text-white font-bold tracking-wide shadow-xs border border-rose-500 text-[10px]"
                 >
                   <Store className="w-2.5 h-2.5" />
                   <span>Offline Mall (NH-80)</span>
@@ -131,10 +131,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="switch-to-online-btn"
                   onClick={() => handleSwitchToMode('online')}
-                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-purple-600/90 hover:bg-purple-500 text-white font-medium shadow-xs transition-all cursor-pointer border border-purple-400/60 text-[10px]"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white hover:bg-purple-50 text-purple-700 font-semibold shadow-2xs transition-all cursor-pointer border border-purple-200 text-[10px]"
                   title="Switch to Smart Bazzar Online Shopping"
                 >
-                  <ShoppingBag className="w-2.5 h-2.5" />
+                  <ShoppingBag className="w-2.5 h-2.5 text-purple-600" />
                   <span>Online Store</span>
                 </button>
               </>
@@ -143,7 +143,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 {/* Selected: Online Shopping (Purple) */}
                 <div 
                   id="mode-indicator-online"
-                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-purple-600 text-white font-bold tracking-wide shadow-xs border border-purple-400/80 text-[10px]"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-600 text-white font-bold tracking-wide shadow-xs border border-purple-500 text-[10px]"
                 >
                   <ShoppingBag className="w-2.5 h-2.5" />
                   <span>Online Store</span>
@@ -153,53 +153,37 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   id="switch-to-offline-btn"
                   onClick={() => handleSwitchToMode('offline')}
-                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-red-600/90 hover:bg-red-500 text-white font-medium shadow-xs transition-all cursor-pointer border border-red-400/60 text-[10px]"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white hover:bg-rose-50 text-rose-700 font-semibold shadow-2xs transition-all cursor-pointer border border-rose-200 text-[10px]"
                   title="Switch to Offline Mall Visit"
                 >
-                  <Store className="w-2.5 h-2.5" />
+                  <Store className="w-2.5 h-2.5 text-rose-600" />
                   <span>Mall Visit</span>
                 </button>
               </>
             )}
           </div>
 
-          {/* Right: Specific User Login & Admin Portal Direct Access */}
+          {/* Right: Specific User Login */}
           <div className="flex items-center gap-1.5 text-[10px]">
-            
-            {/* Direct Admin Portal Access Button */}
-            <button
-              id="top-admin-access-btn"
-              onClick={() => handleNavClick('admin')}
-              className={`inline-flex items-center gap-1 px-2 py-0.2 rounded-full font-bold cursor-pointer transition-all border ${
-                activeTab === 'admin'
-                  ? 'bg-amber-400 text-slate-950 border-amber-300'
-                  : 'bg-amber-500/15 hover:bg-amber-500/30 text-amber-300 border-amber-500/40'
-              }`}
-              title="Restricted Admin & Owner Management Console"
-            >
-              <ShieldCheck className="w-2.5 h-2.5 text-amber-400" />
-              <span>Admin Console</span>
-            </button>
-
             {user ? (
               <div className="flex items-center gap-1">
                 {/* Logged in Customer Account Button */}
                 <button
                   onClick={() => handleNavClick('account')}
-                  className="inline-flex items-center gap-1 px-2 py-0.2 rounded-md bg-white/10 hover:bg-white/20 text-slate-200 border border-white/10 font-semibold cursor-pointer transition-colors shadow-xs"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-white/90 hover:bg-white text-slate-800 border border-slate-200/80 font-semibold cursor-pointer transition-colors shadow-2xs"
                   title="My Private Account & Documents Vault"
                 >
                   <span className="w-3.5 h-3.5 rounded-full bg-amber-400 text-slate-950 font-black text-[8px] flex items-center justify-center">
                     {user.name.charAt(0)}
                   </span>
-                  <span className="font-semibold text-white max-w-[80px] truncate">{user.name.split(' ')[0]}</span>
+                  <span className="font-semibold text-slate-800 max-w-[80px] truncate">{user.name.split(' ')[0]}</span>
                 </button>
 
                 {/* Direct Logout Button */}
                 <button
                   id="top-logout-btn"
                   onClick={logout}
-                  className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-md font-medium text-red-300 hover:text-white hover:bg-red-900/40 transition-colors cursor-pointer border border-red-500/30"
+                  className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer border border-rose-200"
                   title="Logout of your account"
                 >
                   <LogOut className="w-2.5 h-2.5" />
@@ -210,9 +194,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 id="top-login-btn"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-white/10 hover:bg-white/20 text-slate-200 font-medium border border-white/15 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold transition-colors cursor-pointer shadow-2xs"
               >
-                <User className="w-2.5 h-2.5 text-amber-400" />
+                <User className="w-2.5 h-2.5 text-slate-950" />
                 <span>Sign In</span>
               </button>
             )}
@@ -221,9 +205,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* 2. Main Navigation Bar: Minimized Sleek Height */}
+      {/* 2. Main Navigation Bar: Minimized Sleek Height in Light Glass */}
       <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-5 lg:px-6">
-        <div className="flex items-center justify-between h-10 sm:h-11">
+        <div className="flex items-center justify-between h-11 sm:h-12">
           
           {/* Brand Logo with Mode Subtitle */}
           <div 
@@ -231,22 +215,22 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => handleNavClick(appMode === 'offline' ? 'home' : 'shop')}
             className="flex items-center gap-2 cursor-pointer group select-none"
           >
-            <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0 ${
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-105 shrink-0 ${
               appMode === 'offline'
-                ? 'bg-gradient-to-br from-red-600 to-rose-700'
-                : 'bg-gradient-to-br from-purple-600 to-indigo-700'
+                ? 'bg-gradient-to-br from-rose-600 to-red-700 text-white'
+                : 'bg-gradient-to-br from-purple-600 to-indigo-700 text-white'
             }`}>
-              <span className="text-white font-black text-xs sm:text-sm tracking-tight">SB</span>
+              <span className="font-black text-xs sm:text-sm tracking-tight">SB</span>
             </div>
             <div>
               <div className="flex items-center gap-1">
-                <span className="text-sm sm:text-base font-black tracking-tight text-white">
-                  SMART <span className={appMode === 'offline' ? 'text-rose-400' : 'text-purple-400'}>BAZZAR</span>
+                <span className="text-sm sm:text-base font-black tracking-tight text-slate-900">
+                  SMART <span className={appMode === 'offline' ? 'text-rose-600' : 'text-purple-600'}>BAZZAR</span>
                 </span>
-                <span className={`px-1 py-0.2 text-[7px] sm:text-[8px] uppercase font-black tracking-wider rounded border ${
+                <span className={`px-1.5 py-0.2 text-[8px] sm:text-[9px] uppercase font-black tracking-wider rounded border ${
                   appMode === 'offline' 
-                    ? 'bg-red-500/20 text-red-300 border-red-500/40' 
-                    : 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                    ? 'bg-rose-100 text-rose-700 border-rose-200' 
+                    : 'bg-purple-100 text-purple-700 border-purple-200'
                 }`}>
                   {appMode === 'offline' ? 'Mall' : 'Store'}
                 </span>
@@ -263,53 +247,38 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.id}
                   id={`nav-link-${link.id}`}
                   onClick={() => handleNavClick(link.id)}
-                  className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1 relative ${
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 relative ${
                     isActive
                       ? appMode === 'offline'
-                        ? 'bg-red-600 text-white font-bold shadow-xs'
+                        ? 'bg-rose-600 text-white font-bold shadow-xs'
                         : 'bg-purple-600 text-white font-bold shadow-xs'
-                      : 'text-slate-300 hover:text-white hover:bg-white/10'
+                      : 'text-slate-700 hover:text-slate-950 hover:bg-slate-900/5'
                   }`}
                 >
                   <span>{link.label}</span>
                   {link.badge && (
-                    <span className="px-1 py-0.1 text-[7px] bg-amber-400 text-slate-950 rounded-full font-black uppercase">
+                    <span className="px-1.5 py-0.2 text-[8px] bg-amber-400 text-slate-950 rounded-full font-black uppercase">
                       {link.badge}
                     </span>
                   )}
                 </button>
               );
             })}
-
-            {/* Admin Console Tab Button */}
-            <button
-              id="nav-link-admin"
-              onClick={() => handleNavClick('admin')}
-              className={`px-2 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                activeTab === 'admin'
-                  ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
-                  : 'text-amber-300 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30'
-              }`}
-              title="Website Management & Admin Dashboard"
-            >
-              <ShieldCheck className="w-3 h-3 text-amber-400" />
-              <span>Admin</span>
-            </button>
           </nav>
 
           {/* Action Quick Buttons */}
-          <div className="hidden sm:flex items-center space-x-1.5">
+          <div className="hidden sm:flex items-center space-x-2">
             
             {/* Shopping Bag Button with Live Badge */}
             <button
               id="shopping-bag-btn"
               onClick={() => setIsCartOpen(true)}
-              className="relative p-1.5 rounded-lg border border-white/15 bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+              className="relative p-2 rounded-xl border border-slate-200/80 bg-white/80 hover:bg-white text-slate-800 transition-all cursor-pointer shadow-2xs"
               title="View Shopping Bag"
             >
-              <ShoppingBag className="w-3.5 h-3.5 text-white" />
+              <ShoppingBag className="w-4 h-4 text-slate-800" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-0.5 bg-amber-400 text-slate-950 font-black text-[9px] rounded-full flex items-center justify-center shadow-xs">
+                <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-rose-600 text-white font-black text-[9px] rounded-full flex items-center justify-center shadow-xs">
                   {cartCount}
                 </span>
               )}
@@ -320,65 +289,69 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-white/15 bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer text-[11px]"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200/80 bg-white/80 hover:bg-white text-slate-800 transition-colors cursor-pointer text-xs shadow-2xs"
                 >
                   <img
                     src={user.avatar || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=80'}
                     alt={user.name}
-                    className="w-4 h-4 rounded-full object-cover border border-amber-400"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=80';
+                    }}
+                    className="w-5 h-5 rounded-full object-cover border border-amber-400"
                   />
-                  <span className="font-semibold text-white max-w-[70px] truncate">{user.name.split(' ')[0]}</span>
-                  <ChevronDown className="w-3 h-3 text-slate-400" />
+                  <span className="font-semibold text-slate-800 max-w-[80px] truncate">{user.name.split(' ')[0]}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
                 </button>
 
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-1.5 w-56 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/10 py-1.5 z-50 animate-in fade-in-50 duration-150 text-slate-200">
-                    <div className="px-3 py-1.5 border-b border-white/10">
-                      <p className="text-xs font-bold text-white">{user.name}</p>
-                      <p className="text-[10px] text-slate-400 truncate">{user.email}</p>
+                  <div className="absolute right-0 mt-1.5 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-200 py-1.5 z-50 animate-in fade-in-50 duration-150 text-slate-700">
+                    <div className="px-3.5 py-2 border-b border-slate-100">
+                      <p className="text-xs font-bold text-slate-900">{user.name}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{user.email}</p>
                     </div>
 
                     <button
                       onClick={() => handleNavClick('admin')}
-                      className="w-full text-left px-3 py-1.5 text-xs text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 flex items-center gap-2 font-bold"
+                      className="w-full text-left px-3.5 py-2 text-xs text-amber-900 bg-amber-50 hover:bg-amber-100 flex items-center gap-2 font-bold transition-colors cursor-pointer"
                     >
-                      <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+                      <ShieldCheck className="w-4 h-4 text-amber-600" />
                       <span>Admin Management</span>
                     </button>
 
                     <button
                       onClick={() => handleNavClick('account')}
-                      className="w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 flex items-center gap-2"
+                      className="w-full text-left px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer"
                     >
-                      <FileText className="w-3.5 h-3.5 text-slate-400" />
+                      <FileText className="w-4 h-4 text-slate-400" />
                       <span>My Documents Vault</span>
                     </button>
 
                     <button
                       onClick={() => handleNavClick('account')}
-                      className="w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 flex items-center gap-2"
+                      className="w-full text-left px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer"
                     >
-                      <Package className="w-3.5 h-3.5 text-slate-400" />
+                      <Package className="w-4 h-4 text-slate-400" />
                       <span>My Orders & Tracking</span>
                     </button>
 
                     <button
                       onClick={() => handleNavClick('membership')}
-                      className="w-full text-left px-3 py-1.5 text-xs text-slate-200 hover:bg-white/10 flex items-center gap-2"
+                      className="w-full text-left px-3.5 py-2 text-xs text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors cursor-pointer"
                     >
-                      <Gift className="w-3.5 h-3.5 text-amber-400" />
+                      <Gift className="w-4 h-4 text-amber-500" />
                       <span>Smart Club Rewards</span>
                     </button>
 
-                    <div className="border-t border-white/10 mt-1 pt-1">
+                    <div className="border-t border-slate-100 mt-1 pt-1">
                       <button
                         onClick={() => {
                           logout();
                           setUserDropdownOpen(false);
                         }}
-                        className="w-full text-left px-3 py-1.5 text-xs text-red-400 hover:bg-red-500/10 flex items-center gap-2 font-medium"
+                        className="w-full text-left px-3.5 py-2 text-xs text-rose-600 hover:bg-rose-50 flex items-center gap-2 font-medium transition-colors cursor-pointer"
                       >
-                        <LogOut className="w-3.5 h-3.5" />
+                        <LogOut className="w-4 h-4" />
                         <span>Sign Out ({user.name.split(' ')[0]})</span>
                       </button>
                     </div>
@@ -388,9 +361,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <button
                 onClick={() => setIsAuthModalOpen(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 transition-colors cursor-pointer shadow-xs"
               >
-                <User className="w-3 h-3 text-slate-950" />
+                <User className="w-3.5 h-3.5 text-slate-950" />
                 <span>Sign In</span>
               </button>
             )}
@@ -401,12 +374,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-1.5 lg:hidden">
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-1.5 rounded-lg border border-white/15 bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="relative p-2 rounded-xl border border-slate-200/80 bg-white/80 hover:bg-white text-slate-800 transition-colors shadow-2xs"
               aria-label="View Shopping Bag"
             >
-              <ShoppingBag className="w-4 h-4 text-white" />
+              <ShoppingBag className="w-4 h-4 text-slate-800" />
               {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 px-0.5 bg-amber-400 text-slate-950 font-black text-[9px] rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 min-w-4 h-4 px-1 bg-rose-600 text-white font-black text-[9px] rounded-full flex items-center justify-center">
                   {cartCount}
                 </span>
               )}
@@ -415,7 +388,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="mobile-menu-toggle"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-1.5 rounded-lg text-white hover:bg-white/10 focus:outline-none transition-colors border border-white/15"
+              className="p-2 rounded-xl text-slate-800 bg-white/80 hover:bg-white focus:outline-none transition-colors border border-slate-200/80 shadow-2xs cursor-pointer"
               aria-label="Toggle Navigation Menu"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -427,24 +400,24 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-white/10 bg-slate-900/95 backdrop-blur-xl shadow-2xl animate-in slide-in-from-top-2 duration-200 text-slate-200">
+        <div className="lg:hidden border-t border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-2xl animate-in slide-in-from-top-2 duration-200 text-slate-800">
           
           {/* Mobile Mode Switcher (Red vs Purple) */}
-          <div className="p-2.5 bg-black/40 text-white flex items-center justify-between gap-2 border-b border-white/10">
-            <span className="text-[11px] font-semibold text-slate-300">Experience Mode:</span>
+          <div className="p-3 bg-slate-50 text-slate-800 flex items-center justify-between gap-2 border-b border-slate-200/80">
+            <span className="text-xs font-semibold text-slate-600">Experience Mode:</span>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => handleSwitchToMode('offline')}
-                className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-all ${
-                  appMode === 'offline' ? 'bg-red-600 text-white shadow-xs' : 'bg-white/10 text-slate-400 hover:text-white'
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                  appMode === 'offline' ? 'bg-rose-600 text-white shadow-xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 🏬 Offline Mall
               </button>
               <button
                 onClick={() => handleSwitchToMode('online')}
-                className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition-all ${
-                  appMode === 'online' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white/10 text-slate-400 hover:text-white'
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                  appMode === 'online' ? 'bg-purple-600 text-white shadow-xs' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-100'
                 }`}
               >
                 🛍️ Online Store
@@ -453,23 +426,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* User Sign In / Account Section in Mobile Drawer */}
-          <div className="p-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
+          <div className="p-3.5 bg-slate-50/50 border-b border-slate-200/80 flex items-center justify-between">
             {user ? (
               <div className="flex items-center gap-2.5">
                 <img
                   src={user.avatar || 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=80'}
                   alt={user.name}
-                  className="w-8 h-8 rounded-full object-cover border border-amber-400"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=400&q=80';
+                  }}
+                  className="w-9 h-9 rounded-full object-cover border-2 border-amber-400 shadow-xs"
                 />
                 <div>
-                  <h4 className="text-xs font-bold text-white">{user.name}</h4>
-                  <p className="text-[10px] text-amber-300 font-medium">{user.memberTier} VIP • {user.documents?.length || 0} Docs</p>
+                  <h4 className="text-xs font-bold text-slate-900">{user.name}</h4>
+                  <p className="text-[10px] text-amber-700 font-semibold">{user.memberTier} VIP • {user.documents?.length || 0} Docs</p>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-amber-400" />
-                <span className="text-xs font-bold text-white">Customer Account</span>
+                <User className="w-4 h-4 text-amber-500" />
+                <span className="text-xs font-bold text-slate-800">Customer Account</span>
               </div>
             )}
 
@@ -477,13 +454,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="flex items-center gap-1.5">
                 <button
                   onClick={() => handleNavClick('account')}
-                  className="px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 text-xs font-bold"
+                  className="px-2.5 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold cursor-pointer"
                 >
                   My Docs
                 </button>
                 <button
                   onClick={logout}
-                  className="px-2 py-1 rounded-lg bg-red-500/20 text-red-300 text-xs font-medium border border-red-500/30"
+                  className="px-2 py-1 rounded-lg bg-rose-50 text-rose-600 text-xs font-medium border border-rose-200 cursor-pointer"
                 >
                   Logout
                 </button>
@@ -494,7 +471,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   setMobileMenuOpen(false);
                   setIsAuthModalOpen(true);
                 }}
-                className="px-3 py-1 rounded-lg bg-amber-400 text-slate-950 font-bold text-xs"
+                className="px-3 py-1.5 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs cursor-pointer shadow-xs"
               >
                 Sign In
               </button>
@@ -510,41 +487,30 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={link.id}
                   id={`mobile-nav-${link.id}`}
                   onClick={() => handleNavClick(link.id)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                     isActive
-                      ? appMode === 'offline' ? 'bg-red-600 text-white font-bold' : 'bg-purple-600 text-white font-bold'
-                      : 'text-slate-300 hover:bg-white/10'
+                      ? appMode === 'offline' ? 'bg-rose-600 text-white font-bold' : 'bg-purple-600 text-white font-bold'
+                      : 'text-slate-700 hover:bg-slate-100'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
                     {link.icon}
                     <span>{link.label}</span>
                   </div>
-                  <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-500'}`} />
+                  <ChevronRight className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                 </button>
               );
             })}
 
             <button
-              onClick={() => handleNavClick('admin')}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-amber-300 bg-amber-500/15 border border-amber-500/30 mt-2"
-            >
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-4 h-4 text-amber-400" />
-                <span>Admin & Owner Console</span>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 text-amber-400" />
-            </button>
-
-            <button
               onClick={() => handleNavClick('account')}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-200 bg-white/5 border border-white/10 mt-1"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-medium text-slate-800 bg-slate-50 border border-slate-200 mt-1 cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
-                <FileText className="w-4 h-4 text-slate-400" />
+                <FileText className="w-4 h-4 text-slate-500" />
                 <span>Personal Documents & KYC</span>
               </div>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
             </button>
           </div>
         </div>

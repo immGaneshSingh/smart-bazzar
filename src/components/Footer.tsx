@@ -262,6 +262,15 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenParking, onOpe
                   <span>Mall Photo Gallery</span>
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('admin')}
+                  className="hover:text-amber-300 transition-colors flex items-center gap-1.5 cursor-pointer text-left text-amber-400 font-semibold"
+                >
+                  <ShieldCheck className="w-3 h-3 text-amber-400" />
+                  <span>Admin Panel Login</span>
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -300,18 +309,27 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onOpenParking, onOpe
 
         </div>
 
-        {/* Bottom Credits & Copyright */}
-        <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        {/* Bottom Credits & Copyright & Admin Panel Login */}
+        <div className="pt-8 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             © 2024–{new Date().getFullYear()} Smart Bazzar Lakhisarai • Owned by <strong className="text-slate-300 font-semibold">Ganesh Singh</strong>. All rights reserved.
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px]">
             <span>NH-80 Road, Lakhisarai, Bihar</span>
-            <span>•</span>
-            <span>Owner: Ganesh Singh</span>
             <span>•</span>
             <button onClick={() => onNavigate('contact')} className="hover:text-slate-300 cursor-pointer">
               Store Leasing & Contact
+            </button>
+            <span>•</span>
+            {/* Admin Panel Login Button at bottom of website */}
+            <button 
+              id="bottom-admin-login-btn"
+              onClick={() => onNavigate('admin')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 hover:text-amber-200 border border-amber-500/35 font-bold transition-all cursor-pointer shadow-xs hover:scale-105"
+              title="Admin Panel Login"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+              <span>Admin Panel Login</span>
             </button>
           </div>
         </div>

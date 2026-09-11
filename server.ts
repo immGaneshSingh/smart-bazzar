@@ -2,6 +2,8 @@ import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import cors from 'cors';
 import { createServer as createViteServer } from 'vite';
+import 'dotenv/config';
+import { createClient } from '@supabase/supabase-js';
 
 import { 
   ONLINE_PRODUCTS, 
@@ -23,6 +25,27 @@ import { CustomerOrder, OrderItem, TrackingStep, OnlineProduct } from './src/typ
 const app = express();
 const PORT = 3000;
 const isProduction = process.env.NODE_ENV === 'production';
+
+// Supabase Cloud Configuration
+const SUPABASE_PROJECT_ID = 'hbwomnuosklfusuuwuzf';
+
+function cleanSupabaseUrl(rawUrl?: string): string {
+  const fallback = `https://${SUPABASE_PROJECT_ID}.supabase.co`;
+  if (!rawUrl) return fallback;
+  try {
+    const parsed = new URL(rawUrl.trim());
+    return parsed.origin;
+  } catch {
+    return rawUrl.trim().replace(/\/rest\/v1\/?$/i, '').replace(/\/+$/, '');
+  }
+}
+
+const SUPABASE_URL = cleanSupabaseUrl(process.env.SUPABASE_URL);
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_ImVW1obqBiT6cmXMpJNe7Q_NOPXXR8G';
+
+export const serverSupabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: false, autoRefreshToken: false }
+});
 
 // In-memory data store for server-managed orders, dynamic products, and audit logs
 const serverOrders: Map<string, CustomerOrder> = new Map();
@@ -548,7 +571,40 @@ app.patch('/api/products/:id/price', (req: Request, res: Response) => {
 });
 
 // 4h. User Sign-Ins & Sessions History (Admin Route)
-app.get('/api/user-logins', (_req: Request, res: Response) => {
+app.get('/api/user-logins', async (_req: Request, res: Response) => {
+  try {
+    const { data: sbLogins } = await serverSupabase
+      .from('logins')
+      .select('*')
+      .order('timestamp', { ascending: false });
+
+    if (sbLogins && Array.isArray(sbLogins)) {
+      const existingIds = new Set(userLogins.map(l => l.id));
+      for (const s of sbLogins) {
+        if (!existingIds.has(s.id)) {
+          userLogins.push({
+            id: s.id,
+            userName: s.user_name || 'Customer',
+            phone: s.phone || '',
+            email: s.email || '',
+            timestamp: s.timestamp,
+            role: (s.role as any) || 'Buyer',
+            device: s.device || 'Desktop / Laptop',
+            ip: s.ip || 'Client Applet',
+            authMethod: (s.auth_method as any) || 'SMS OTP Verified',
+            status: 'success'
+          });
+          existingIds.add(s.id);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[Supabase] Logins sync warning:', err);
+  }
+
+  // Sort by most recent
+  userLogins.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
   const uniqueUsersCount = new Set(userLogins.map(l => l.phone || l.email)).size;
   const todayDate = new Date().toISOString().split('T')[0];
   const todayLogins = userLogins.filter(l => l.timestamp.startsWith(todayDate)).length;
@@ -628,8 +684,9 @@ app.post('/api/auth/verify-otp', (req: Request, res: Response) => {
   const userEmail = email || pending.email || matchedCustomer?.user.email || `${cleanPhone}@smartbazzar.in`;
 
   // Record user login with exact time
+  const loginRecordId = `login-${Date.now()}`;
   userLogins.unshift({
-    id: `login-${Date.now()}`,
+    id: loginRecordId,
     userName,
     phone: `+91 ${cleanPhone}`,
     email: userEmail,
@@ -640,6 +697,26 @@ app.post('/api/auth/verify-otp', (req: Request, res: Response) => {
     authMethod: 'SMS OTP Verified',
     status: 'success'
   });
+
+  // Asynchronously save to Supabase 'logins' table
+  (async () => {
+    try {
+      await serverSupabase.from('logins').insert([{
+        id: loginRecordId,
+        user_name: userName,
+        phone: `+91 ${cleanPhone}`,
+        email: userEmail,
+        role: 'Customer',
+        auth_method: 'SMS OTP Verified',
+        device: userAgent.includes('Mobile') ? 'Mobile Device' : 'Desktop / Laptop',
+        ip: clientIp,
+        status: 'success',
+        timestamp: new Date().toISOString()
+      }]);
+    } catch (err: any) {
+      console.warn('[Supabase Login Sync Warning]', err?.message);
+    }
+  })();
 
   logAudit('AUTH_OTP_SUCCESS', `+91${cleanPhone}`, clientIp, { userName, phone: cleanPhone });
 
@@ -712,9 +789,59 @@ app.get('/api/events', (_req: Request, res: Response) => {
   res.json({ success: true, count: EVENTS_DATA.length, data: EVENTS_DATA });
 });
 
-// 9. Orders Endpoint (Query orders by customer phone/user)
-app.get('/api/orders', (req: Request, res: Response) => {
+// 9. Orders Endpoint (Query orders by customer phone/user, merged with Supabase Cloud bookings)
+app.get('/api/orders', async (req: Request, res: Response) => {
   const { phone, userId } = req.query;
+
+  try {
+    const { data: sbOrders } = await serverSupabase
+      .from('bookings')
+      .select('*')
+      .eq('booking_type', 'store_order')
+      .order('created_at', { ascending: false });
+
+    if (sbOrders && Array.isArray(sbOrders)) {
+      for (const b of sbOrders) {
+        if (!serverOrders.has(b.id)) {
+          const details = b.details || {};
+          const items = Array.isArray(details.items) ? details.items : [];
+          serverOrders.set(b.id, {
+            id: b.id,
+            orderDate: b.created_at ? b.created_at.split('T')[0] : new Date().toISOString().split('T')[0],
+            items: items.map((it: any, idx: number) => ({
+              productId: it.productId || `prod-sb-${idx}`,
+              name: it.name || 'Smart Bazzar Order Item',
+              price: it.price || Math.round(Number(b.amount) / Math.max(1, items.length)),
+              quantity: it.quantity || 1,
+              selectedOption: it.selectedOption
+            })),
+            subtotal: Number(b.amount) || 0,
+            discount: 0,
+            deliveryFee: 0,
+            totalAmount: Number(b.amount) || 0,
+            status: (b.status as any) || 'confirmed',
+            paymentMethod: (details.paymentMethod as any) || 'upi',
+            paymentStatus: 'paid',
+            deliveryAddress: {
+              fullName: b.customer_name || 'Valued Shopper',
+              phone: b.customer_phone || '',
+              addressLine: details.deliveryAddress || 'Smart Bazzar Pickup Desk',
+              city: 'Lakhisarai',
+              pincode: '811311',
+              deliveryMode: (details.deliveryMode as any) || 'home-delivery'
+            },
+            estimatedDelivery: 'Dispatched via Express Partner',
+            trackingSteps: details.trackingSteps || [
+              { title: 'Order Confirmed in Supabase Cloud', time: 'Verified', completed: true, current: true }
+            ]
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[Supabase] Orders sync warning:', err);
+  }
+
   let ordersList = Array.from(serverOrders.values());
 
   if (phone) {
@@ -847,6 +974,33 @@ app.post('/api/orders', rateLimiter(20, 60000), (req: Request, res: Response) =>
     // Save in server store
     serverOrders.set(orderId, newOrder);
 
+    // Asynchronously save to Supabase 'bookings' table
+    (async () => {
+      try {
+        await serverSupabase.from('bookings').insert([{
+          id: orderId,
+          booking_type: 'store_order',
+          customer_name: (deliveryAddress.fullName || 'Valued Customer').trim(),
+          customer_phone: (deliveryAddress.phone || '+91 99999 99999').trim(),
+          customer_email: (deliveryAddress.email || '').trim(),
+          details: {
+            itemCount: verifiedOrderItems.length,
+            items: verifiedOrderItems,
+            deliveryMode: deliveryAddress.deliveryMode,
+            deliveryAddress: `${deliveryAddress.addressLine}, ${deliveryAddress.city} - ${deliveryAddress.pincode}`,
+            paymentMethod,
+            trackingSteps,
+          },
+          amount: verifiedTotal,
+          status: 'confirmed',
+          created_at: now.toISOString(),
+        }]);
+        console.log(`[Supabase] Order ${orderId} synced to 'bookings' table.`);
+      } catch (err: any) {
+        console.warn('[Supabase Order Sync Warning]', err?.message);
+      }
+    })();
+
     // Audit log
     const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
     logAudit('CREATE_ORDER', deliveryAddress.phone, clientIp, {
@@ -863,6 +1017,85 @@ app.post('/api/orders', rateLimiter(20, 60000), (req: Request, res: Response) =>
     });
   } catch (error: any) {
     res.status(500).json({ success: false, error: 'ORDER_CREATION_FAILED', message: error.message });
+  }
+});
+
+// 11b. Supabase Cloud Status & Data Explorer Endpoints
+app.get('/api/supabase/status', async (_req: Request, res: Response) => {
+  try {
+    const startTime = Date.now();
+    const [bRes, lRes, dRes] = await Promise.all([
+      serverSupabase.from('bookings').select('*', { count: 'exact', head: true }),
+      serverSupabase.from('logins').select('*', { count: 'exact', head: true }),
+      serverSupabase.from('documents').select('*', { count: 'exact', head: true }),
+    ]);
+    const latencyMs = Date.now() - startTime;
+
+    res.json({
+      success: true,
+      connected: true,
+      projectId: SUPABASE_PROJECT_ID,
+      url: SUPABASE_URL,
+      latencyMs,
+      counts: {
+        bookings: bRes.count || 0,
+        logins: lRes.count || 0,
+        documents: dRes.count || 0,
+      },
+      tables: {
+        bookings: !bRes.error,
+        logins: !lRes.error,
+        documents: !dRes.error,
+      }
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      connected: false,
+      error: err.message || 'Failed to reach Supabase backend'
+    });
+  }
+});
+
+app.get('/api/supabase/data', async (_req: Request, res: Response) => {
+  try {
+    const [bookingsRes, loginsRes, docsRes] = await Promise.all([
+      serverSupabase.from('bookings').select('*').order('created_at', { ascending: false }).limit(50),
+      serverSupabase.from('logins').select('*').order('timestamp', { ascending: false }).limit(50),
+      serverSupabase.from('documents').select('*').order('uploaded_at', { ascending: false }).limit(50),
+    ]);
+
+    res.json({
+      success: true,
+      projectId: SUPABASE_PROJECT_ID,
+      bookings: bookingsRes.data || [],
+      logins: loginsRes.data || [],
+      documents: docsRes.data || [],
+      errors: {
+        bookings: bookingsRes.error?.message,
+        logins: loginsRes.error?.message,
+        documents: docsRes.error?.message,
+      }
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete('/api/supabase/record/:table/:id', async (req: Request, res: Response) => {
+  const { table, id } = req.params;
+  if (!['bookings', 'logins', 'documents'].includes(table)) {
+    return res.status(400).json({ success: false, message: 'Invalid table name. Permitted: bookings, logins, documents' });
+  }
+
+  try {
+    const { error } = await serverSupabase.from(table).delete().eq('id', id);
+    if (error) {
+      return res.status(500).json({ success: false, message: error.message });
+    }
+    res.json({ success: true, message: `Record ${id} successfully removed from Supabase table '${table}'.` });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err?.message || 'Delete operation failed' });
   }
 });
 

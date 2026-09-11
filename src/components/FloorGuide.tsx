@@ -97,6 +97,10 @@ export const FloorGuide: React.FC<FloorGuideProps> = ({ onNavigate, onOpenVirtua
               <img
                 src={currentFloor.image}
                 alt={currentFloor.title}
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1567449303078-57ad995bd301?auto=format&fit=crop&w=1200&q=80';
+                }}
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/30 to-transparent" />

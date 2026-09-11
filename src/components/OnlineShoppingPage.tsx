@@ -591,6 +591,10 @@ export const OnlineShoppingPage: React.FC<OnlineShoppingPageProps> = ({ onNaviga
                     <img
                       src={product.image}
                       alt={product.name}
+                      referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80';
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
@@ -1039,6 +1043,10 @@ export const OnlineShoppingPage: React.FC<OnlineShoppingPageProps> = ({ onNaviga
                   <img
                     src={quickViewProduct.image}
                     alt={quickViewProduct.name}
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80';
+                    }}
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-3 left-3 bg-slate-950/80 backdrop-blur-xs px-2.5 py-1 rounded-lg text-white text-[11px] font-semibold">

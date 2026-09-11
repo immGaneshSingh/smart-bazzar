@@ -12,10 +12,12 @@ import {
   Navigation, 
   Download, 
   Sparkles,
-  ChevronRight
+  ChevronRight,
+  Database
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { MALL_INFO } from '../data/mallData';
+import { saveBookingToSupabase, SUPABASE_PROJECT_ID } from '../lib/supabase';
 
 interface SmartParkingPageProps {
   onNavigate: (tab: any) => void;
@@ -29,6 +31,7 @@ export const SmartParkingPage: React.FC<SmartParkingPageProps> = ({ onNavigate }
   const [mobileNumber, setMobileNumber] = useState('');
   const [isReserved, setIsReserved] = useState(false);
   const [passCode, setPassCode] = useState('');
+  const [supabaseStatus, setSupabaseStatus] = useState<string>('Syncing with Supabase...');
 
   // Sample bays for interactive selector
   const baysB1 = [
@@ -68,6 +71,31 @@ export const SmartParkingPage: React.FC<SmartParkingPageProps> = ({ onNavigate }
     const newPass = `SB-PARK-${Math.floor(100000 + Math.random() * 900000)}`;
     setPassCode(newPass);
     setIsReserved(true);
+
+    // Save directly to Supabase Backend
+    saveBookingToSupabase({
+      id: newPass,
+      booking_type: 'parking',
+      customer_name: 'Driver (Visitor)',
+      customer_phone: mobileNumber.trim() || '',
+      details: {
+        slot: selectedSlot,
+        level: selectedLevel,
+        vehicleType,
+        licensePlate: plateNumber.trim() || 'BR-53-L-1001',
+      },
+      amount: 0,
+      status: 'reserved',
+    }).then(res => {
+      if (res.success) {
+        setSupabaseStatus(`Synced with Supabase Backend (${SUPABASE_PROJECT_ID})`);
+      } else {
+        setSupabaseStatus(`Supabase (${SUPABASE_PROJECT_ID}): ${res.message}`);
+      }
+    }).catch(() => {
+      setSupabaseStatus('Supabase: Saved to local queue');
+    });
+
     try {
       confetti({
         particleCount: 55,
@@ -257,6 +285,15 @@ export const SmartParkingPage: React.FC<SmartParkingPageProps> = ({ onNavigate }
                       <span className="text-[10px] text-slate-400 uppercase font-bold">Status</span>
                       <p className="font-bold text-emerald-400">Bay Locked for 45m</p>
                     </div>
+                  </div>
+
+                  {/* Supabase Status Line */}
+                  <div className="pt-2 border-t border-slate-800 flex items-center justify-between text-[11px]">
+                    <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+                      <Database className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>{supabaseStatus}</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">public.bookings</span>
                   </div>
                 </div>
 

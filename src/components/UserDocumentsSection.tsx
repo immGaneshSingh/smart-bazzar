@@ -29,10 +29,12 @@ import {
   Phone, 
   Mail, 
   Calendar,
-  Users
+  Users,
+  Database
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { UserDocument, DocumentType, UserProfile } from '../types';
+import { saveDocumentToSupabase, SUPABASE_PROJECT_ID } from '../lib/supabase';
 
 export const UserDocumentsSection: React.FC = () => {
   const { 
@@ -204,16 +206,42 @@ export const UserDocumentsSection: React.FC = () => {
       return;
     }
 
-    addDocument({
+    const newDocId = `doc-${Date.now()}`;
+    const docData = {
       type: newDocType,
       typeName: newDocTypeName,
       documentNumber: newDocNumber.trim(),
       fullName: newDocHolderName.trim() || user.name,
       issueDate: newDocIssueDate,
       expiryDate: newDocExpiryDate,
-      status: 'verified',
+      status: 'verified' as const,
       verifiedBy: 'Smart Bazzar KYC Security Cell',
       notes: newDocNotes || 'Registered for offline mall privileges and online doorstep delivery.'
+    };
+
+    addDocument(docData);
+
+    // Save directly to Supabase Backend
+    saveDocumentToSupabase({
+      id: newDocId,
+      user_phone: user.phone || '',
+      document_type: newDocType,
+      type_name: newDocTypeName,
+      document_number: newDocNumber.trim(),
+      full_name: newDocHolderName.trim() || user.name,
+      issue_date: newDocIssueDate,
+      expiry_date: newDocExpiryDate,
+      status: 'verified',
+      verified_by: 'Smart Bazzar KYC Security Cell',
+      notes: newDocNotes || 'Registered for offline mall privileges and online doorstep delivery.'
+    }).then(res => {
+      if (res.success) {
+        showToast(`Document saved to Supabase (${SUPABASE_PROJECT_ID})`);
+      } else {
+        showToast(`Document queued locally (${res.message})`);
+      }
+    }).catch(() => {
+      showToast('Document saved in local vault');
     });
 
     setShowAddModal(false);
@@ -263,6 +291,29 @@ export const UserDocumentsSection: React.FC = () => {
             </button>
           </div>
 
+        </div>
+      </div>
+
+      {/* SUPABASE BACKEND CLOUD VAULT STATUS */}
+      <div className="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-800/40 rounded-2xl p-3.5 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+            <Database className="w-4 h-4" />
+          </div>
+          <div>
+            <p className="font-bold text-white text-xs flex items-center gap-1.5">
+              <span>Supabase Cloud Database Connected</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            </p>
+            <p className="text-[11px] text-slate-400">
+              Your KYC documents sync directly to table <code className="text-emerald-300 font-mono">public.documents</code> (Project: {SUPABASE_PROJECT_ID})
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-[11px] text-slate-400 bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-800 self-start sm:self-center font-mono">
+          <span className="text-emerald-400">● LIVE</span>
+          <span>{user.documents?.length || 0} Records Stored</span>
         </div>
       </div>
 

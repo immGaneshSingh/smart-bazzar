@@ -360,6 +360,10 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
                         <img
                           src={item.image}
                           alt={item.name}
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80';
+                          }}
                           className="w-16 h-16 rounded-xl object-cover border border-slate-200 shrink-0"
                         />
                         <div className="flex-1 min-w-0 flex flex-col justify-between">
@@ -449,6 +453,10 @@ export const CustomerAccountPage: React.FC<CustomerAccountPageProps> = ({ onNavi
                             key={idx}
                             src={it.image}
                             alt={it.name}
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80';
+                            }}
                             className="w-12 h-12 rounded-xl object-cover border border-slate-200"
                             title={it.name}
                           />

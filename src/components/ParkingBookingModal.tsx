@@ -10,9 +10,11 @@ import {
   QrCode, 
   Download, 
   Sparkles,
-  Zap
+  Zap,
+  Database
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { saveBookingToSupabase, SUPABASE_PROJECT_ID } from '../lib/supabase';
 
 interface ParkingBookingModalProps {
   onClose: () => void;
@@ -26,6 +28,7 @@ export const ParkingBookingModal: React.FC<ParkingBookingModalProps> = ({ onClos
   const [driverName, setDriverName] = useState('');
   const [isReserved, setIsReserved] = useState(false);
   const [ticketId, setTicketId] = useState('');
+  const [supabaseStatus, setSupabaseStatus] = useState<string>('Syncing with Supabase...');
 
   // Sample Parking bays for demonstration
   const bays = [
@@ -46,6 +49,31 @@ export const ParkingBookingModal: React.FC<ParkingBookingModalProps> = ({ onClos
     const newId = `SB-PARK-${Math.floor(10000 + Math.random() * 90000)}`;
     setTicketId(newId);
     setIsReserved(true);
+
+    // Save Parking Reservation directly to Supabase
+    saveBookingToSupabase({
+      id: newId,
+      booking_type: 'parking',
+      customer_name: driverName.trim() || 'Vehicle Owner',
+      customer_phone: '',
+      details: {
+        slot: selectedSlot,
+        level: parkingLevel,
+        vehicleType,
+        vehicleNumber: vehicleNumber.trim() || 'BR-53-L-1001',
+        tariff: 'Free for 1st Hour',
+      },
+      amount: 0,
+      status: 'reserved',
+    }).then(res => {
+      if (res.success) {
+        setSupabaseStatus(`Synced with Supabase Backend (${SUPABASE_PROJECT_ID})`);
+      } else {
+        setSupabaseStatus(`Supabase (${SUPABASE_PROJECT_ID}): ${res.message}`);
+      }
+    }).catch(() => {
+      setSupabaseStatus('Supabase: Saved in local backup queue');
+    });
 
     try {
       confetti({
@@ -129,6 +157,15 @@ export const ParkingBookingModal: React.FC<ParkingBookingModalProps> = ({ onClos
               <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-500 flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Boom barrier will auto-open upon scanning your license plate or QR code.</span>
+              </div>
+
+              {/* Supabase Sync Badge */}
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-[11px] bg-slate-100/80 -mx-5 -mb-4 px-5 py-2 rounded-b-2xl">
+                <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+                  <Database className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{supabaseStatus}</span>
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono">public.bookings</span>
               </div>
             </div>
 

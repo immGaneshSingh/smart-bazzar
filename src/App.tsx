@@ -21,6 +21,7 @@ import { VirtualTourPage } from './components/VirtualTourPage';
 import { OnlineShoppingPage } from './components/OnlineShoppingPage';
 import { CustomerAccountPage } from './components/CustomerAccountPage';
 import { AdminDashboard } from './components/AdminDashboard';
+import { OwnerGaneshSinghPage } from './components/OwnerGaneshSinghPage';
 
 // E-Commerce State & Modals
 import { ShopProvider } from './context/ShopContext';
@@ -43,7 +44,6 @@ import {
   Compass, 
   ArrowUp,
   UserCheck,
-  Rainbow,
   ArrowLeft
 } from 'lucide-react';
 
@@ -292,9 +292,19 @@ export function App() {
           <AdminDashboard />
         )}
 
-        {/* RECREATED ABOUT & PERSONAL DOCUMENTS / ACCOUNT PAGE FOR EACH USER */}
-        {(activeSection === 'account' || activeSection === 'about' || activeSection === 'owner') && (
-          <CustomerAccountPage onNavigate={handleNavigate} initialTab="documents" />
+        {/* DEDICATED CUSTOMER ACCOUNT PORTAL */}
+        {activeSection === 'account' && (
+          <CustomerAccountPage onNavigate={handleNavigate} initialTab="orders" />
+        )}
+
+        {/* DEDICATED ABOUT US PAGE */}
+        {activeSection === 'about' && (
+          <AboutUs onNavigate={handleNavigate} />
+        )}
+
+        {/* DEDICATED FOUNDER & OWNER GANESH SINGH PAGE */}
+        {activeSection === 'owner' && (
+          <OwnerGaneshSinghPage onNavigate={handleNavigate} onOpenVirtualTour={() => handleNavigate('tour')} />
         )}
 
         {/* DEDICATED 360° VIRTUAL TOUR PAGE */}
@@ -393,34 +403,15 @@ export function App() {
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
         </button>
 
-        {/* Hidden SVG defs for vibrant Rainbow stroke */}
-        <svg width="0" height="0" className="absolute pointer-events-none" aria-hidden="true">
-          <defs>
-            <linearGradient id="rainbow-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#ef4444" />
-              <stop offset="18%" stopColor="#f97316" />
-              <stop offset="36%" stopColor="#eab308" />
-              <stop offset="54%" stopColor="#22c55e" />
-              <stop offset="72%" stopColor="#06b6d4" />
-              <stop offset="88%" stopColor="#3b82f6" />
-              <stop offset="100%" stopColor="#a855f7" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* Small-Size Functional Rainbow Back Button */}
+        {/* Minimized Arrow-Only Back Button */}
         <button
-          id="rainbow-back-button"
+          id="back-button"
           onClick={handleGoBack}
-          title="Back / Return to previous view"
-          aria-label="Back / Return to previous view"
-          className="group relative inline-flex items-center p-[1.5px] rounded-full bg-gradient-to-r from-red-500 via-amber-400 via-emerald-400 via-sky-400 to-purple-500 shadow-md hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+          title="Back"
+          aria-label="Back"
+          className="w-8 h-8 rounded-full bg-slate-900/90 hover:bg-slate-900 text-white border border-slate-700 shadow-md backdrop-blur-xs flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95 group"
         >
-          <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 hover:bg-white text-slate-800 text-xs font-bold backdrop-blur-xs transition-colors">
-            <ArrowLeft className="w-3.5 h-3.5 text-slate-600 group-hover:-translate-x-0.5 transition-transform" />
-            <Rainbow className="w-4 h-4" stroke="url(#rainbow-gradient)" />
-            <span className="text-[11px] font-extrabold tracking-tight text-slate-800">Back</span>
-          </span>
+          <ArrowLeft className="w-4 h-4 text-slate-200 group-hover:-translate-x-0.5 transition-transform" />
         </button>
 
         {/* Scroll To Top */}
